@@ -1,0 +1,94 @@
+.heraldVanguish-accessButtonContainer {
+    position: fixed;
+    bottom: 6vh;
+    left: 75vw;
+    transform: translateX(-50%);
+    z-index: 5;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.heraldVanguish-accessButton {
+    background-color: rgba(0, 0, 0, 0.7);
+    width: 30px;
+    height: 30px;
+    color: white;
+    font-size: 16px;
+    border: none;
+    cursor: pointer;
+    border-radius: 5px;
+    margin-bottom: 5px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transition: background-color 0.3s ease;
+    -webkit-border-radius: 5px;
+    -moz-border-radius: 5px;
+    -ms-border-radius: 5px;
+    -o-border-radius: 5px;
+}
+
+
+.heraldVanguish-dialogNpcContainer {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 5px;
+    border-bottom: 1px solid #ccc;
+}
+
+.heraldVanguish-dialogNpcImageContainer {
+    position: relative;
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    background-color: #363636;
+    border: 2px solid #d4af37;
+    z-index: 8;
+    cursor: pointer;
+}
+
+.heraldVanguish-dialogNpcImageView {
+    width: 99%;
+    height: 99%;
+    border: none;
+    object-fit: cover;
+    object-position: center;
+    z-index: 8;
+    border-radius: 50%;
+}
+
+.heraldVanguish-dialogNpcCr {
+    font-size: 12px;
+    color: gray;
+}
+
+.heraldVanguish-dialogNpcMiddle {}
+
+.heraldVanguish-dialogNpcMiddleTop{
+    display: flex;
+    gap: 5px;
+    align-items: center;
+}
+
+.heraldVanguish-dialogNpcName {
+    font-weight: bold;
+    font-size: 16px;
+}
+
+.heraldVanguish-dialogNpcUuid {
+    font-size: 10px;
+    color: gray;
+}
+
+
+.heraldVanguish-dialogNpcHp {
+    font-size: 12px;
+}
+
+.heraldVanguish-dialogNpcMiddleBot{
+    display: flex;
+    gap: 5px;
+}
