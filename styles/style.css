@@ -31,6 +31,10 @@
 }
 
 
+.heraldVanguish-dialogListNpcMiddle{
+    padding-bottom: 20%;
+}
+
 .heraldVanguish-dialogNpcContainer {
     display: flex;
     align-items: center;
@@ -67,7 +71,7 @@
 
 .heraldVanguish-dialogNpcMiddle {}
 
-.heraldVanguish-dialogNpcMiddleTop{
+.heraldVanguish-dialogNpcMiddleTop {
     display: flex;
     gap: 5px;
     align-items: center;
@@ -88,7 +92,100 @@
     font-size: 12px;
 }
 
-.heraldVanguish-dialogNpcMiddleBot{
+.heraldVanguish-dialogNpcMiddleBot {
     display: flex;
     gap: 5px;
 }
+
+.heraldVanguish-dialogNpcWeaknessContainer{
+    display: flex;
+    gap: 3px;
+    
+}
+
+.heraldVanguish-dialogWeaknessAdd{
+    cursor: pointer;
+}
+
+.heraldVanguish-weaknessCheckbox{
+    display: flex;
+    gap: 5px;
+    align-items: center;
+    padding: 5px;
+}
+
+.heraldVanguish-dialogListNpcBottom {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    padding: 10px;
+    z-index: 14;
+    background-color: rgb(0, 0, 0,0.5);
+}
+
+.heraldVanguish-dialogListNpcBottomTop {
+    display: flex;
+    justify-content: flex-end;
+    padding: 5px 10px;
+}
+
+.heraldVanguish-applyToAllButton {
+    padding: 2px 5px;
+    background-color: #dc3545;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 12px;
+}
+
+.heraldVanguish-dialogListNpcBottomBot {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.heraldVanguish-searchListNpcContainer {
+    flex: 2;
+    padding: 4px;
+    border-radius: 5px;
+    display: flex;
+    align-items: center;
+}
+
+.heraldVanguish-searchListNpc {
+    width: 100%;
+    padding: 6px 8px;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+    font-size: 12px;
+    background-color: rgb(37, 37, 37) !important;
+    color: #ddd !important;
+}
+
+.heraldVanguish-searchListNpc::placeholder {
+    color: #aaa !important;
+}
+
+.heraldVanguish-saveListNpcContainer {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+}
+
+.heraldVanguish-saveListNpc {
+    padding: 2px 5px;
+    background-color: #28a745;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 12px;
+}
+
+.heraldVanguish-saveListNpc:hover {
+    background-color: #218838;
+}
+
+
