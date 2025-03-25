@@ -1,6 +1,7 @@
 import * as vHelper from "./heraldVanguish_helper.js";
 
 let heraldVanguish_allNpcScene = [];
+let heraldVanguish_listNpcApplyVanguish = [];
 
 async function heraldVanguish_renderAccessButton() {
   const existingBar = document.getElementById(
@@ -121,9 +122,6 @@ async function heraldVanguish_getDataVanguishMiddle() {
     let tokenUuid = token?.document?.uuid;
     let npcCr = npc.system.details?.cr;
     let toughnessValue = await heraldVanguish_calculatedToughness(tokenUuid);
-    await npc.update({
-      "system.details.ideal": toughnessValue,
-    });
     listNpc += `
         <div id="heraldVanguish-dialogNpcContainer" class="heraldVanguish-dialogNpcContainer">
             <div id="heraldVanguish-dialogNpcLeft" class="heraldVanguish-dialogNpcLeft">
@@ -144,7 +142,7 @@ async function heraldVanguish_getDataVanguishMiddle() {
                 </div>
                 <div id="heraldVanguish-dialogNpcMiddleBot" class="heraldVanguish-dialogNpcMiddleBot">
                     <div class="heraldVanguish-dialogNpcCr">CR ${npcCr}</div>
-                    <div class="heraldVanguish-dialogNpcCr">(Toughness: ${toughnessValue})</div>
+                    <div id="heraldVanguish-dialogNpcToughness" class="heraldVanguish-dialogNpcToughness" value="${toughnessValue}"  data-npc-id="${tokenUuid}">(Toughness: ${toughnessValue})</div>
                 </div>
                 <div id="heraldVanguish-dialogNpcWeaknessContainer" class="heraldVanguish-dialogNpcWeaknessContainer">
                     <div id="heraldVanguish-dialogListWeakness" class="heraldVanguish-dialogListWeakness"></div>
@@ -154,6 +152,9 @@ async function heraldVanguish_getDataVanguishMiddle() {
                 </div>
             </div>
             <div id="heraldVanguish-dialogNpcRight" class="heraldVanguish-dialogNpcRight">
+              <label>
+                <input type="checkbox" class="heraldVanguish-dialogNpcCheckbox" value="${tokenUuid}">
+              </label>
             </div>
         </div>
         `;
@@ -211,6 +212,12 @@ async function heraldVanguish_getDataVanguishBottom() {
       .getElementById("heraldVanguish-applyWeaknessToAllContainer")
       ?.addEventListener("click", async (event) => {
         await heraldVanguish_showDialogAddWeaknessAllNpc();
+      });
+
+    document
+      .getElementById("heraldVanguish-saveListNpcContainer")
+      ?.addEventListener("click", async (event) => {
+        await heraldVanguish_applyVanguishNpc();
       });
   }
 }
@@ -369,24 +376,80 @@ async function heraldVanguish_getDataDialogWeaknessAllNpc() {
   }
 }
 
-Hooks.on("updateActor", (actor, updateData, options, userId) => {
-  console.log(actor);
+async function heraldVanguish_applyVanguishNpc() {
+  heraldVanguish_listNpcApplyVanguish = [];
+  console.log("jalan");
+  document
+    .querySelectorAll(".heraldVanguish-dialogNpcCheckbox:checked")
+    .forEach((checkbox) => {
+      let npcId = checkbox.value;
+      heraldVanguish_listNpcApplyVanguish.push(npcId);
+    });
+
+    for(let id of heraldVanguish_listNpcApplyVanguish){
+      let tokenDocument = await fromUuid(id);
+      let token = tokenDocument.object;
+      let npc = token.actor;
+
+      let toughnessElement = document.querySelector(
+        `#heraldVanguish-dialogNpcToughness[data-npc-id="${id}"]`
+      );
+      if(toughnessElement){
+        let toughnessValue = toughnessElement.getAttribute("value");
+
+        await tokenDocument.setFlag("world", "heraldVanguish", { toughness: toughnessValue });
+
+        console.log(tokenDocument);
+        let savedData = await tokenDocument.getFlag("world", "heraldVanguish");
+        console.log(`Flag set untuk ${npc.name}:`, savedData);
+      }
+
+
+    }
+}
+
+Hooks.on("preUpdateActor", async (actor, updateData, options, userId) => {
+  if (!updateData.system?.attributes?.hp) return;
+
+  let oldHP = actor.system.attributes.hp.value;
+  let newHP = updateData.system.attributes.hp.value ?? oldHP;
+  let oldTempHP = actor.system.attributes.hp.temp || 0;
+  let newTempHP = updateData.system.attributes.hp.temp ?? oldTempHP;
+
+  let damageTaken = 0;
+
+  if (newTempHP < oldTempHP) {
+    damageTaken = oldTempHP - newTempHP;
+  } else if (newHP < oldHP) {
+    damageTaken = oldHP - newHP + (oldTempHP - newTempHP);
+  }
+
+  if (damageTaken > 0) {
+    console.log(damageTaken);
+  }
+  let tokenDocument = actor.getActiveTokens().find(t => t.scene)?.document;
+
+  let heraldVanguish = await tokenDocument.getFlag("world", "heraldVanguish");
+  if (heraldVanguish.toughness !== undefined) {
+    let newToughness = Math.max(0, heraldVanguish.toughness - damageTaken); 
+    await tokenDocument.setFlag("world", "heraldVanguish", { ...heraldVanguish, toughness: newToughness });
+
+    let afterUpdate = await tokenDocument.getFlag("world", "heraldVanguish");
+    console.log(afterUpdate);
+  } 
+
+
 
 });
 
-Hooks.on("midi-qol.RollComplete", (workflow) => {
-  if (!workflow.damageTotal) return;
+Hooks.on("updateActor", async (actor, data) => {
+  setTimeout(async () => {
+    let tokenDocument = actor.getActiveTokens().find(t => t.scene)?.document;
+    let afterUpdate = await tokenDocument.getFlag("world", "heraldVanguish");
+    console.log(afterUpdate);
+    console.log("test");
+  }, 500);
 
-  let attacker = workflow.actor;  
-  let targets = workflow.targets; 
-  let damage = workflow.damageTotal; 
-
-  if (targets.size > 0) {
-      targets.forEach(target => {
-          console.log(`${attacker.name} menyerang ${target.name} dan memberikan damage sebesar ${damage}`);
-          ui.notifications.info(`${attacker.name} menyerang ${target.name} dan memberikan damage sebesar ${damage}`);
-      });
-  }
 });
 
 export { heraldVanguish_renderAccessButton };
