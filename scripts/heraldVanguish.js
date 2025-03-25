@@ -2,6 +2,7 @@ import * as vHelper from "./heraldVanguish_helper.js";
 
 let heraldVanguish_allNpcScene = [];
 let heraldVanguish_listNpcApplyVanguish = [];
+let heraldVanguish_tempAddWeaknessList = {};
 
 async function heraldVanguish_renderAccessButton() {
   const existingBar = document.getElementById(
@@ -86,10 +87,12 @@ async function heraldVanguish_calculatedToughness(id) {
   let token = tokenDocument.object;
   let actor = token.actor;
   let CR = actor.system.details?.cr || 0;
+  let maxHp = actor.system.attributes.hp.max;
   if (isNaN(CR) || CR < 0) {
     return 0;
   }
-  let toughnessValue = Math.ceil(CR * CR + CR * 20);
+  let toughnessValue = Math.ceil(CR * 5 + Math.floor(maxHp / 10));
+
   return toughnessValue;
 }
 
@@ -120,16 +123,35 @@ async function heraldVanguish_getDataVanguishMiddle() {
     let maxHp = npc.system.attributes.hp.max;
     let token = npc.getActiveTokens()[0];
     let tokenUuid = token?.document?.uuid;
+    let tokenDocument = await fromUuid(tokenUuid);
     let npcCr = npc.system.details?.cr;
+
     let toughnessValue = await heraldVanguish_calculatedToughness(tokenUuid);
+    let npcFlag = await tokenDocument.getFlag("world", "heraldVanguish");
+    let maxWeakness = 5;
+    heraldVanguish_tempAddWeaknessList;
+    if (npcFlag) {
+      if (npcFlag.maxWeakness) {
+        maxWeakness = npcFlag.maxWeakness;
+      }
+      if (npcFlag.listWeakness) {
+      }
+    }
+    let listWeakness = ``;
+    // if(heraldVanguish_tempAddWeaknessList[tokenUuid]){
+    //   for(let type of heraldVanguish_tempAddWeaknessList[tokenUuid]){
+    //     listWeakness+=`${vHelper.heraldVanguish_getGameIconDamage(type)}`;
+    //   }
+    // }
+
     listNpc += `
         <div id="heraldVanguish-dialogNpcContainer" class="heraldVanguish-dialogNpcContainer">
             <div id="heraldVanguish-dialogNpcLeft" class="heraldVanguish-dialogNpcLeft">
                 <div class="heraldVanguish-dialogNpcImageContainer">
                     <img src="${npc.img}" alt="" class="heraldVanguish-dialogNpcImageView" />
                 </div>
-                <div id="heraldVanguish-totalWeaknessContainer" class="heraldVanguish-totalWeaknessContainer">
-                5
+                <div id="heraldVanguish-maxWeaknessContainer" class="heraldVanguish-maxWeaknessContainer">
+                  <input id="heraldVanguish-maxWeaknessValue-${tokenUuid}" class="heraldHud-maxWeaknessValue" type="number" value="${maxWeakness}"/>
                 </div>
             </div>
             <div id="heraldVanguish-dialogNpcMiddle" class="heraldVanguish-dialogNpcMiddle">
@@ -145,7 +167,7 @@ async function heraldVanguish_getDataVanguishMiddle() {
                     <div id="heraldVanguish-dialogNpcToughness" class="heraldVanguish-dialogNpcToughness" value="${toughnessValue}"  data-npc-id="${tokenUuid}">(Toughness: ${toughnessValue})</div>
                 </div>
                 <div id="heraldVanguish-dialogNpcWeaknessContainer" class="heraldVanguish-dialogNpcWeaknessContainer">
-                    <div id="heraldVanguish-dialogListWeakness" class="heraldVanguish-dialogListWeakness"></div>
+                    <div id="heraldVanguish-dialogListWeakness" class="heraldVanguish-dialogListWeakness">${listWeakness}</div>
                     <div id="heraldVanguish-dialogWeaknessAdd" class="heraldVanguish-dialogWeaknessAdd" data-npc-id="${tokenUuid}">
                       <i class="fa-solid fa-plus"></i>
                     </div>
@@ -227,17 +249,17 @@ async function heraldVanguish_showDialogAddWeaknessNpc(id) {
   let token = tokenDocument.object;
   let actor = token.actor;
 
-  console.log(tokenDocument);
-  console.log(actor.system);
-  console.log(token);
-
   let dialogContent = `
   <div id="heraldVanguish-dialogWeaknessNpcContainer" class="heraldVanguish-dialogWeaknessNpcContainer">
     <div id="heraldVanguish-dialogWeaknessNpcTop" class="heraldVanguish-dialogWeaknessNpcTop">
     </div>
     <div id="heraldVanguish-dialogWeaknessNpcMiddle" class="heraldVanguish-dialogWeaknessNpcMiddle">
     </div>
-    <div id="heraldVanguish-dialogWeaknessNpcBottom" class="heraldVanguish-dialogWeaknessNpcBottom"></div>
+    <div id="heraldVanguish-dialogWeaknessNpcBottom" class="heraldVanguish-dialogWeaknessNpcBottom">
+      <div id="heraldVanguish-saveNpcWeaknessContainer" class="heraldVanguish-saveNpcWeaknessContainer">
+        <button id="heraldVanguish-saveNpcWeakness" class="heraldVanguish-saveNpcWeakness">Save</button>
+      </div>
+    </div>
   </div>`;
 
   new Dialog({
@@ -260,14 +282,25 @@ async function heraldVanguish_showDialogAddWeaknessNpc(id) {
       });
     }
 
-    await heraldVanguish_getDataDialogWeaknessNpc();
+    document
+      .getElementById("heraldVanguish-saveNpcWeaknessContainer")
+      ?.addEventListener("click", async (event) => {
+        console.log("test");
+        await heraldVanguish_addWeaknessNpc(id);
+      });
+    await heraldVanguish_getDataDialogWeaknessNpc(id);
   });
 }
 
-async function heraldVanguish_getDataDialogWeaknessNpc() {
+async function heraldVanguish_getDataDialogWeaknessNpc(id) {
   let dialogWeaknessMiddle = document.getElementById(
     "heraldVanguish-dialogWeaknessNpcMiddle"
   );
+
+  let tokenDocument = await fromUuid(id);
+  let token = tokenDocument.object;
+  let actor = token.actor;
+  let npcFlag = await tokenDocument.getFlag("world", "heraldVanguish");
   const validTypes = {
     acid: "Acid",
     bludgeoning: "Bludgeoning",
@@ -290,8 +323,8 @@ async function heraldVanguish_getDataDialogWeaknessNpc() {
 
   for (let type in validTypes) {
     listWeaknessdamage += `
-      <div class="heraldVanguish-weaknessCheckbox">
-        <input type="checkbox" name="weakness" value="${type}">
+      <div class="heraldVanguish-npcWeaknessCheckboxContainer">
+        <input id="heraldVanguish-npcWeaknessCheckbox" class="heraldVanguish-npcWeaknessCheckbox" type="checkbox" name="weakness" value="${type}">
         ${vHelper.heraldVanguish_getGameIconDamage(type)}
         <div class="heraldVanguish-weaknessDamageName">${validTypes[type]}</div>
       </div>
@@ -301,6 +334,22 @@ async function heraldVanguish_getDataDialogWeaknessNpc() {
   if (dialogWeaknessMiddle) {
     dialogWeaknessMiddle.innerHTML = listWeaknessdamage;
   }
+}
+
+async function heraldVanguish_addWeaknessNpc(id) {
+  if (!heraldVanguish_tempAddWeaknessList[id]) {
+    heraldVanguish_tempAddWeaknessList[id] = [];
+  }
+  document
+    .querySelectorAll(".heraldVanguish-npcWeaknessCheckbox:checked")
+    .forEach((checkbox) => {
+      let weakness = checkbox.value;
+      if (!heraldVanguish_tempAddWeaknessList[id].includes(weakness)) {
+        heraldVanguish_tempAddWeaknessList[id].push(weakness);
+      }
+    });
+
+  console.log(heraldVanguish_tempAddWeaknessList);
 }
 
 async function heraldVanguish_showDialogAddWeaknessAllNpc() {
@@ -363,8 +412,8 @@ async function heraldVanguish_getDataDialogWeaknessAllNpc() {
 
   for (let type in validTypes) {
     listWeaknessdamage += `
-      <div class="heraldVanguish-weaknessCheckbox">
-        <input type="checkbox" name="weakness" value="${type}">
+      <div class="heraldVanguish-allNpcweaknessCheckboxContainer">
+        <input id="heraldVanguish-allNpcWeaknessCheckbox" type="checkbox" name="weakness" value="${type}">
         ${vHelper.heraldVanguish_getGameIconDamage(type)}
         <div class="heraldVanguish-weaknessDamageName">${validTypes[type]}</div>
       </div>
@@ -386,26 +435,36 @@ async function heraldVanguish_applyVanguishNpc() {
       heraldVanguish_listNpcApplyVanguish.push(npcId);
     });
 
-    for(let id of heraldVanguish_listNpcApplyVanguish){
-      let tokenDocument = await fromUuid(id);
-      let token = tokenDocument.object;
-      let npc = token.actor;
-
-      let toughnessElement = document.querySelector(
-        `#heraldVanguish-dialogNpcToughness[data-npc-id="${id}"]`
-      );
-      if(toughnessElement){
-        let toughnessValue = toughnessElement.getAttribute("value");
-
-        await tokenDocument.setFlag("world", "heraldVanguish", { toughness: toughnessValue });
-
-        console.log(tokenDocument);
-        let savedData = await tokenDocument.getFlag("world", "heraldVanguish");
-        console.log(`Flag set untuk ${npc.name}:`, savedData);
-      }
-
-
+  for (let id of heraldVanguish_listNpcApplyVanguish) {
+    let tokenDocument = await fromUuid(id);
+    let token = tokenDocument.object;
+    let npc = token.actor;
+    let toughness = 0;
+    let maxWeakness = 0;
+    let listWeakness = [];
+    let toughnessElement = document.querySelector(
+      `#heraldVanguish-dialogNpcToughness[data-npc-id="${id}"]`
+    );
+    if (toughnessElement) {
+      let toughnessValue = Number(toughnessElement.getAttribute("value"));
+      toughness = toughnessValue;
     }
+
+    let maxWeaknessValueDiv = document.getElementById(
+      `heraldVanguish-maxWeaknessValue-${id}`
+    );
+
+    if (maxWeaknessValueDiv) {
+      maxWeakness = Number(maxWeaknessValueDiv.value);
+    }
+    await tokenDocument.setFlag("world", "heraldVanguish", {
+      toughness: toughness,
+      // maxWeakness: maxWeakness,
+    });
+
+    let savedData = await tokenDocument.getFlag("world", "heraldVanguish");
+    console.log(`Flag set untuk ${npc.name}:`, savedData);
+  }
 }
 
 Hooks.on("preUpdateActor", async (actor, updateData, options, userId) => {
@@ -417,6 +476,7 @@ Hooks.on("preUpdateActor", async (actor, updateData, options, userId) => {
   let newTempHP = updateData.system.attributes.hp.temp ?? oldTempHP;
 
   let damageTaken = 0;
+  let damageType = "unknown";
 
   if (newTempHP < oldTempHP) {
     damageTaken = oldTempHP - newTempHP;
@@ -427,29 +487,63 @@ Hooks.on("preUpdateActor", async (actor, updateData, options, userId) => {
   if (damageTaken > 0) {
     console.log(damageTaken);
   }
-  let tokenDocument = actor.getActiveTokens().find(t => t.scene)?.document;
+  let tokenDocument = actor.getActiveTokens().find((t) => t.scene)?.document;
 
   let heraldVanguish = await tokenDocument.getFlag("world", "heraldVanguish");
   if (heraldVanguish.toughness !== undefined) {
-    let newToughness = Math.max(0, heraldVanguish.toughness - damageTaken); 
-    await tokenDocument.setFlag("world", "heraldVanguish", { ...heraldVanguish, toughness: newToughness });
+    let newToughness = Math.max(0, heraldVanguish.toughness - damageTaken);
+    await tokenDocument.setFlag("world", "heraldVanguish", {
+      ...heraldVanguish,
+      toughness: newToughness,
+    });
 
     let afterUpdate = await tokenDocument.getFlag("world", "heraldVanguish");
     console.log(afterUpdate);
-  } 
-
-
-
+  }
 });
 
 Hooks.on("updateActor", async (actor, data) => {
   setTimeout(async () => {
-    let tokenDocument = actor.getActiveTokens().find(t => t.scene)?.document;
-    let afterUpdate = await tokenDocument.getFlag("world", "heraldVanguish");
-    console.log(afterUpdate);
-    console.log("test");
-  }, 500);
+    let tokenDocument = actor.getActiveTokens().find((t) => t.scene)?.document;
+    let npcTokenFlag = await tokenDocument.getFlag("world", "heraldVanguish");
 
+    console.log(tokenDocument.uuid);
+    if (npcTokenFlag.toughness <= 0) {
+      let toughnessValue = await heraldVanguish_calculatedToughness(
+        tokenDocument.uuid
+      );
+      await tokenDocument.setFlag("world", "heraldVanguish", {
+        ...npcTokenFlag,
+        toughness: toughnessValue,
+      });
+
+      let existingEffect = actor.effects.find(
+        (e) => e.name === "Weakness: Broken"
+      );
+      if (!existingEffect) {
+        await actor.createEmbeddedDocuments("ActiveEffect", [
+          {
+            name: "Weakness: Broken",
+            icon: "",
+            changes: [],
+            origin: `Actor.${actor.id}`,
+            disabled: false,
+            transfer: false,
+            duration: { rounds: 21 },
+          },
+        ]);
+      }
+    }
+
+    console.log(npcTokenFlag);
+    if (npcTokenFlag?.toughness !== undefined) {
+      let chatContent = `${actor.name} Toughness: ${npcTokenFlag.toughness}`;
+      ChatMessage.create({
+        content: chatContent,
+        speaker: null,
+      });
+    }
+  }, 500);
 });
 
 export { heraldVanguish_renderAccessButton };
