@@ -43,7 +43,7 @@ async function heraldVanguish_getDataAllNpcScene() {
   heraldVanguish_allNpcScene = [];
 
   heraldVanguish_allNpcScene = game.scenes.viewed.tokens
-    .filter((t) => t.actor.type === "npc")
+    .filter((t) => t.actor.type === "npc" && t.disposition === -1)
     .map((t) => t.actor);
 
   await heraldVanguish_showDialogVanguish();
@@ -175,7 +175,7 @@ async function heraldVanguish_getDataVanguishMiddle() {
             </div>
             <div id="heraldVanguish-dialogNpcRight" class="heraldVanguish-dialogNpcRight">
               <label>
-                <input type="checkbox" class="heraldVanguish-dialogNpcCheckbox" value="${tokenUuid}">
+                <input id="heraldVanguish-dialogNpcCheckbox-${tokenUuid}" type="checkbox" class="heraldVanguish-dialogNpcCheckbox" value="${tokenUuid}">
               </label>
             </div>
         </div>
@@ -205,7 +205,10 @@ async function heraldVanguish_getDataVanguishBottom() {
     dialogVanguishBotDiv.innerHTML = `
     <div id="heraldVanguish-dialogListNpcBottomTop" class="heraldVanguish-dialogListNpcBottomTop">
       <div id="heraldVanguish-applyWeaknessToAllContainer" class="heraldVanguish-applyWeaknessToAllContainer">
-          <button id="heraldVanguish-applyToAllButton" class="heraldVanguish-applyToAllButton">Apply to All</button>
+          <button id="heraldVanguish-applyWeaknessAll" class="heraldVanguish-applyWeaknessAll">Apply to All</button>
+      </div>
+      <div id="heraldVanguish-applyToughnessToAllContainer" class="heraldVanguish-applyToughnessToAllContainer">
+          <button id="heraldVanguish-applyToughnessAll" class="heraldVanguish-applyToughnessAll">Vanguish to All</button>
       </div>
     </div>
     <div id="heraldVanguish-dialogListNpcBottomBot" class="heraldVanguish-dialogListNpcBottomBot">
@@ -234,6 +237,12 @@ async function heraldVanguish_getDataVanguishBottom() {
       .getElementById("heraldVanguish-applyWeaknessToAllContainer")
       ?.addEventListener("click", async (event) => {
         await heraldVanguish_showDialogAddWeaknessAllNpc();
+      });
+
+    document
+      .getElementById("heraldVanguish-applyToughnessToAllContainer")
+      ?.addEventListener("click", async (event) => {
+        await heraldVanguish_applyToughnessAllNpc();
       });
 
     document
@@ -459,11 +468,31 @@ async function heraldVanguish_applyVanguishNpc() {
     }
     await tokenDocument.setFlag("world", "heraldVanguish", {
       toughness: toughness,
+      maxToughness: toughness,
       // maxWeakness: maxWeakness,
     });
 
     let savedData = await tokenDocument.getFlag("world", "heraldVanguish");
     console.log(`Flag set untuk ${npc.name}:`, savedData);
+  }
+}
+
+async function heraldVanguish_applyToughnessAllNpc() {
+  for (let npc of heraldVanguish_allNpcScene) {
+    let token = npc.getActiveTokens()[0];
+    let tokenUuid = token?.document?.uuid;
+    let tokenDocument = await fromUuid(tokenUuid);
+
+    let toughnessElement = document.getElementById(
+      `heraldVanguish-dialogNpcCheckbox-${tokenUuid}`
+    );
+    console.log(toughnessElement);
+    let toughness = 0;
+    if (toughnessElement) {
+      let toughnessValue = Number(toughnessElement.getAttribute("value"));
+      toughness = toughnessValue;
+      toughnessElement.checked = true;
+    }
   }
 }
 
@@ -490,16 +519,26 @@ Hooks.on("preUpdateActor", async (actor, updateData, options, userId) => {
   let tokenDocument = actor.getActiveTokens().find((t) => t.scene)?.document;
 
   let heraldVanguish = await tokenDocument.getFlag("world", "heraldVanguish");
+  let newToughness;
   if (heraldVanguish.toughness !== undefined) {
-    let newToughness = Math.max(0, heraldVanguish.toughness - damageTaken);
+    newToughness = Math.max(0, heraldVanguish.toughness - damageTaken);
     await tokenDocument.setFlag("world", "heraldVanguish", {
       ...heraldVanguish,
       toughness: newToughness,
     });
-
-    let afterUpdate = await tokenDocument.getFlag("world", "heraldVanguish");
-    console.log(afterUpdate);
   }
+
+  setTimeout(async () => {
+    let npcTokenFlag = await tokenDocument.getFlag("world", "heraldVanguish");
+    let chatContent = `${actor.name} Toughness has drop to ${newToughness} as they took ${damageTaken} Toughness break`;
+    if (npcTokenFlag?.toughness !== undefined) {
+      ChatMessage.create({
+        content: chatContent,
+        speaker: null,
+      });
+    }
+    ui.notifications.info(chatContent);
+  }, 1000);
 });
 
 Hooks.on("updateActor", async (actor, data) => {
@@ -508,42 +547,72 @@ Hooks.on("updateActor", async (actor, data) => {
     let npcTokenFlag = await tokenDocument.getFlag("world", "heraldVanguish");
 
     console.log(tokenDocument.uuid);
-    if (npcTokenFlag.toughness <= 0) {
-      let toughnessValue = await heraldVanguish_calculatedToughness(
-        tokenDocument.uuid
-      );
-      await tokenDocument.setFlag("world", "heraldVanguish", {
-        ...npcTokenFlag,
-        toughness: toughnessValue,
-      });
+    console.log(npcTokenFlag);
+    if (npcTokenFlag) {
+      if (game.user.isGM) {
+        if (npcTokenFlag.toughness <= 0) {
 
-      let existingEffect = actor.effects.find(
-        (e) => e.name === "Weakness: Broken"
-      );
-      if (!existingEffect) {
-        await actor.createEmbeddedDocuments("ActiveEffect", [
-          {
-            name: "Weakness: Broken",
-            icon: "",
-            changes: [],
-            origin: `Actor.${actor.id}`,
-            disabled: false,
-            transfer: false,
-            duration: { rounds: 21 },
-          },
-        ]);
+
+          let chatContent = `
+          ${actor.name} is now Weakness Broken!<br>
+          <br>
+          <br>
+          "${actor.name} has a [[-4]] penalty to their <b>Armor Class</b> and <b>Damage Rolls</b>, and a [[-2]] penalty to all <b>Saving Throws, Ability Checks, Attack Rolls, and Spell Save DC</b>, alongside their movement speed will drop by 25%, lasting until the end of their next turn.<br>
+          <br>
+          <br>
+          The ${actor.name} gains a stack of <b>Exhaustion</b> which does not get nullified at the end of Weakness Broken."
+        `;
+        
+          ChatMessage.create({
+            content: chatContent,
+            speaker: ChatMessage.getSpeaker({ token: tokenDocument }),
+          });
+        }
       }
     }
-
-    console.log(npcTokenFlag);
-    if (npcTokenFlag?.toughness !== undefined) {
-      let chatContent = `${actor.name} Toughness: ${npcTokenFlag.toughness}`;
-      ChatMessage.create({
-        content: chatContent,
-        speaker: null,
-      });
-    }
   }, 500);
+});
+
+let lastTurn = null;
+
+Hooks.on("updateCombat", (combat, update, options, userId) => {
+  if (!combat || update.turn === undefined) return;
+
+  const previousCombatant =
+    lastTurn !== null ? combat.combatants.get(lastTurn) : null;
+  if (previousCombatant) {
+    setTimeout(async () => {
+      console.log(`Turn berakhir untuk: ${previousCombatant.token.name}`);
+      let tokenDocument = previousCombatant.token;
+      console.log("TokenDocument:", tokenDocument);
+
+      let npcTokenFlag = await tokenDocument.getFlag("world", "heraldVanguish");
+      console.log("npcTokenFlag:", npcTokenFlag);
+
+      if (npcTokenFlag) {
+        if (npcTokenFlag.toughness <= 0) {
+          let toughnessValue = npcTokenFlag.maxToughness;
+          await tokenDocument.setFlag("world", "heraldVanguish", {
+            ...npcTokenFlag,
+            toughness: toughnessValue,
+          });
+
+          let chatContent = `${tokenDocument.name} has regained their toughness and recovered from their Weakness Broken State`;
+
+          ChatMessage.create({
+            content: chatContent,
+            speaker: ChatMessage.getSpeaker({ token: tokenDocument }),
+          });
+          let uiNotifContent = `${tokenDocument.name} has regained their toughness ${toughnessValue}`;
+          ui.notifications.info(uiNotifContent);
+
+          console.log("Notifikasi dan chat dikirim.");
+        }
+      }
+    }, 500);
+  }
+
+  lastTurn = combat.current.combatantId;
 });
 
 export { heraldVanguish_renderAccessButton };

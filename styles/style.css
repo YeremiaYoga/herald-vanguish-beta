@@ -193,18 +193,11 @@
 .heraldVanguish-dialogListNpcBottomTop {
     display: flex;
     justify-content: flex-end;
-    padding: 5px 10px;
+    gap: 5px;
+   padding-bottom: 5px;
 }
 
-.heraldVanguish-applyToAllButton {
-    padding: 2px 5px;
-    background-color: #dc3545;
-    color: white;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    font-size: 12px;
-}
+
 
 .heraldVanguish-dialogListNpcBottomBot {
     display: flex;
