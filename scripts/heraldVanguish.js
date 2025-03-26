@@ -529,14 +529,16 @@ Hooks.on("preUpdateActor", async (actor, updateData, options, userId) => {
 
   setTimeout(async () => {
     let npcTokenFlag = await tokenDocument.getFlag("world", "heraldVanguish");
-    let chatContent = `${actor.name} Toughness has drop to ${newToughness} as they took ${damageTaken} Toughness break`;
     if (npcTokenFlag?.toughness !== undefined) {
+    
+      let chatContent = `${actor.name}'s toughness was reduce to ${npcTokenFlag.toughness} / ${npcTokenFlag.maxToughness}`;
       ChatMessage.create({
         content: chatContent,
         speaker: null,
       });
+      ui.notifications.info(chatContent);
     }
-    ui.notifications.info(chatContent);
+
   }, 1000);
 });
 
@@ -549,18 +551,14 @@ Hooks.on("updateActor", async (actor, data) => {
     if (npcTokenFlag) {
       if (game.user.isGM) {
         if (npcTokenFlag.toughness <= 0) {
-
-
           let chatContent = `
-          ${actor.name} is now Weakness Broken!<br>
+          ${actor.name} is now Weakness Broken!
           <br>
-          <br>
-          "${actor.name} has a [[-4]] penalty to their <b>Armor Class</b> and <b>Damage Rolls</b>, and a [[-2]] penalty to all <b>Saving Throws, Ability Checks, Attack Rolls, and Spell Save DC</b>, alongside their movement speed will drop by 25%, lasting until the end of their next turn.<br>
-          <br>
+          "${actor.name} has a [[-4]] penalty to their <b>Armor Class</b> and <b>Damage Rolls</b>, and a [[-2]] penalty to all <b>Saving Throws, Ability Checks, Attack Rolls, and Spell Save DC</b>, alongside their movement speed will drop by 25%, lasting until the end of their next turn.
           <br>
           The ${actor.name} gains a stack of <b>Exhaustion</b> which does not get nullified at the end of Weakness Broken."
         `;
-        
+
           ChatMessage.create({
             content: chatContent,
             speaker: ChatMessage.getSpeaker({ token: tokenDocument }),
