@@ -512,9 +512,6 @@ Hooks.on("preUpdateActor", async (actor, updateData, options, userId) => {
     damageTaken = oldHP - newHP + (oldTempHP - newTempHP);
   }
 
-  if (damageTaken > 0) {
-    console.log(damageTaken);
-  }
   let tokenDocument = actor.getActiveTokens().find((t) => t.scene)?.document;
 
   let heraldVanguish = await tokenDocument.getFlag("world", "heraldVanguish");
@@ -529,8 +526,7 @@ Hooks.on("preUpdateActor", async (actor, updateData, options, userId) => {
 
   setTimeout(async () => {
     let npcTokenFlag = await tokenDocument.getFlag("world", "heraldVanguish");
-    if (npcTokenFlag?.toughness !== undefined) {
-    
+    if (npcTokenFlag?.toughness !== undefined && damageTaken > 0) {
       let chatContent = `${actor.name}'s toughness was reduce to ${npcTokenFlag.toughness} / ${npcTokenFlag.maxToughness}`;
       ChatMessage.create({
         content: chatContent,
@@ -538,7 +534,6 @@ Hooks.on("preUpdateActor", async (actor, updateData, options, userId) => {
       });
       ui.notifications.info(chatContent);
     }
-
   }, 1000);
 });
 
@@ -551,7 +546,7 @@ Hooks.on("updateActor", async (actor, data) => {
     if (npcTokenFlag) {
       if (game.user.isGM) {
         if (npcTokenFlag.toughness <= 0) {
-          
+       
           let chatContent = `
           ${actor.name} is now Weakness Broken!
           <br>
