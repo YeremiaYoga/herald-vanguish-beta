@@ -551,6 +551,7 @@ Hooks.on("updateActor", async (actor, data) => {
     if (npcTokenFlag) {
       if (game.user.isGM) {
         if (npcTokenFlag.toughness <= 0) {
+          
           let chatContent = `
           ${actor.name} is now Weakness Broken!
           <br>
