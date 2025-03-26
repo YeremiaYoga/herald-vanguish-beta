@@ -436,7 +436,6 @@ async function heraldVanguish_getDataDialogWeaknessAllNpc() {
 
 async function heraldVanguish_applyVanguishNpc() {
   heraldVanguish_listNpcApplyVanguish = [];
-  console.log("jalan");
   document
     .querySelectorAll(".heraldVanguish-dialogNpcCheckbox:checked")
     .forEach((checkbox) => {
@@ -486,7 +485,7 @@ async function heraldVanguish_applyToughnessAllNpc() {
     let toughnessElement = document.getElementById(
       `heraldVanguish-dialogNpcCheckbox-${tokenUuid}`
     );
-    console.log(toughnessElement);
+
     let toughness = 0;
     if (toughnessElement) {
       let toughnessValue = Number(toughnessElement.getAttribute("value"));
@@ -546,7 +545,6 @@ Hooks.on("updateActor", async (actor, data) => {
     let tokenDocument = actor.getActiveTokens().find((t) => t.scene)?.document;
     let npcTokenFlag = await tokenDocument.getFlag("world", "heraldVanguish");
 
-    console.log(tokenDocument.uuid);
     console.log(npcTokenFlag);
     if (npcTokenFlag) {
       if (game.user.isGM) {
