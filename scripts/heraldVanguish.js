@@ -500,6 +500,7 @@ async function heraldVanguish_calculatedToughnessDamage(damage, uuid) {
   let token = tokenDocument.object;
   let actor = token.actor;
   let weaknessBoost = 100;
+  let elementBoost = 1;
   let effectModifiers = {
     "Weakness Break Efficiency Boost - Blinded": 25,
     "Weakness Break Efficiency Boost - Frightened": 25,
@@ -519,13 +520,15 @@ async function heraldVanguish_calculatedToughnessDamage(damage, uuid) {
     for (let [key, bonus] of Object.entries(effectModifiers)) {
       if (effectName.includes(key.toLowerCase())) {
         weaknessBoost += bonus;
-        console.log(`Effect Detected: ${key} (+${bonus}%)`);
       }
     }
   }
 
-  let finalToughnessDamage = damage * weaknessBoost;
-  console.log(weaknessBoost);
+  let finalToughnessDamage = Math.floor(
+    damage * elementBoost * (weaknessBoost * 0.01)
+  );
+
+  return finalToughnessDamage;
 }
 
 Hooks.on("preUpdateActor", async (actor, updateData, options, userId) => {
@@ -537,7 +540,6 @@ Hooks.on("preUpdateActor", async (actor, updateData, options, userId) => {
   let newTempHP = updateData.system.attributes.hp.temp ?? oldTempHP;
 
   let damageTaken = 0;
-  let damageType = "unknown";
 
   if (newTempHP < oldTempHP) {
     damageTaken = oldTempHP - newTempHP;
