@@ -555,7 +555,7 @@ Hooks.on("preUpdateActor", async (actor, updateData, options, userId) => {
   let heraldVanguish = await tokenDocument.getFlag("world", "heraldVanguish");
   let newToughness;
   if (heraldVanguish.toughness !== undefined) {
-    newToughness = Math.max(0, heraldVanguish.toughness - damageTaken);
+    newToughness = Math.max(0, heraldVanguish.toughness - toughnessDamage);
     await tokenDocument.setFlag("world", "heraldVanguish", {
       ...heraldVanguish,
       toughness: newToughness,
@@ -564,7 +564,7 @@ Hooks.on("preUpdateActor", async (actor, updateData, options, userId) => {
 
   setTimeout(async () => {
     let npcTokenFlag = await tokenDocument.getFlag("world", "heraldVanguish");
-    if (npcTokenFlag?.toughness !== undefined && damageTaken > 0) {
+    if (npcTokenFlag?.toughness !== undefined && toughnessDamage > 0) {
       let chatContent = `${actor.name}'s toughness was reduce to ${npcTokenFlag.toughness} / ${npcTokenFlag.maxToughness}`;
       ChatMessage.create({
         content: chatContent,
