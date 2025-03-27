@@ -795,23 +795,23 @@ Hooks.on("updateActor", async (actor, data) => {
             });
           }
         }
-        // let maxOverflowToughness = npcTokenFlag.maxToughness * 5;
-        // if (npcTokenFlag.overflowToughness >= maxOverflowToughness) {
-        //   let heraldVanguish = await tokenDocument.getFlag(
-        //     "world",
-        //     "heraldVanguish"
-        //   );
-        //   vHelper.heraldVanguish_effectOverflowWeaknessBroken(
-        //     actor,
-        //     tokenDocument
-        //   );
-        //   let newOverflowToughness =
-        //     npcTokenFlag.overflowToughness - maxOverflowToughness;
-        //   await tokenDocument.setFlag("world", "heraldVanguish", {
-        //     ...heraldVanguish,
-        //     overflowToughness: newOverflowToughness,
-        //   });
-        // }
+        let maxOverflowToughness = npcTokenFlag.maxToughness * 5;
+        if (npcTokenFlag.overflowToughness >= maxOverflowToughness) {
+          let heraldVanguish = await tokenDocument.getFlag(
+            "world",
+            "heraldVanguish"
+          );
+          vHelper.heraldVanguish_effectOverflowWeaknessBroken(
+            actor,
+            tokenDocument
+          );
+          let newOverflowToughness =
+            npcTokenFlag.overflowToughness - maxOverflowToughness;
+          await tokenDocument.setFlag("world", "heraldVanguish", {
+            ...heraldVanguish,
+            overflowToughness: newOverflowToughness,
+          });
+        }
       }
     }
   }, 500);
