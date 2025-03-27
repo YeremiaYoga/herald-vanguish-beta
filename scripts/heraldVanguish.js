@@ -91,7 +91,7 @@ async function heraldVanguish_calculatedToughness(id) {
   if (isNaN(CR) || CR < 0) {
     return 0;
   }
-  let toughnessValue = Math.ceil(CR * 5 + Math.floor(maxHp / 10));
+  let toughnessValue = Math.ceil(CR * 7 + maxHp / 8);
 
   return toughnessValue;
 }
@@ -495,6 +495,39 @@ async function heraldVanguish_applyToughnessAllNpc() {
   }
 }
 
+async function heraldVanguish_calculatedToughnessDamage(damage, uuid) {
+  let tokenDocument = await fromUuid(uuid);
+  let token = tokenDocument.object;
+  let actor = token.actor;
+  let weaknessBoost = 100;
+  let effectModifiers = {
+    "Weakness Break Efficiency Boost - Blinded": 25,
+    "Weakness Break Efficiency Boost - Frightened": 25,
+    "Weakness Break Efficiency Boost - Paralyzed": 50,
+    "Weakness Break Efficiency Boost - Petrified": 100,
+    "Weakness Break Efficiency Boost - Incapacitated": 30,
+    "Weakness Break Efficiency Boost - Poisoned": 15,
+    "Weakness Break Efficiency Boost - Stunned": 50,
+
+    "Weakness Break Efficiency 5%": 5,
+    "Weakness Break Efficiency 10%": 10,
+    "Weakness Break Efficiency 20%": 20,
+    "Weakness Break Efficiency 25%": 25,
+  };
+  for (let effect of actor.effects) {
+    let effectName = effect.name.toLowerCase();
+    for (let [key, bonus] of Object.entries(effectModifiers)) {
+      if (effectName.includes(key.toLowerCase())) {
+        weaknessBoost += bonus;
+        console.log(`Effect Detected: ${key} (+${bonus}%)`);
+      }
+    }
+  }
+
+  let finalToughnessDamage = damage * weaknessBoost;
+  console.log(weaknessBoost);
+}
+
 Hooks.on("preUpdateActor", async (actor, updateData, options, userId) => {
   if (!updateData.system?.attributes?.hp) return;
 
@@ -511,8 +544,11 @@ Hooks.on("preUpdateActor", async (actor, updateData, options, userId) => {
   } else if (newHP < oldHP) {
     damageTaken = oldHP - newHP + (oldTempHP - newTempHP);
   }
-
   let tokenDocument = actor.getActiveTokens().find((t) => t.scene)?.document;
+  let toughnessDamage = await heraldVanguish_calculatedToughnessDamage(
+    damageTaken,
+    tokenDocument.uuid
+  );
 
   let heraldVanguish = await tokenDocument.getFlag("world", "heraldVanguish");
   let newToughness;
@@ -538,6 +574,7 @@ Hooks.on("preUpdateActor", async (actor, updateData, options, userId) => {
 });
 
 Hooks.on("updateActor", async (actor, data) => {
+  console.log("jalan update");
   setTimeout(async () => {
     let tokenDocument = actor.getActiveTokens().find((t) => t.scene)?.document;
     let npcTokenFlag = await tokenDocument.getFlag("world", "heraldVanguish");
@@ -666,7 +703,6 @@ Hooks.on("updateActor", async (actor, data) => {
 });
 
 let lastTurn = null;
-
 Hooks.on("updateCombat", (combat, update, options, userId) => {
   if (!combat || update.turn === undefined) return;
 
@@ -706,5 +742,72 @@ Hooks.on("updateCombat", (combat, update, options, userId) => {
 
   lastTurn = combat.current.combatantId;
 });
+
+// async function heraldVanguish_checkNpcInCombat() {
+//   let combat = game.combat;
+//   if (!combat || !combat.started) return;
+
+//   let npcUuidArray = combat.combatants
+//     .filter(
+//       (c) =>
+//         c.actor &&
+//         c.actor.type === "npc" &&
+//         c.token?.getFlag("world", "heraldVanguish")?.toughness !== undefined
+//     )
+//     .map((c) => c.token.uuid);
+
+//   // Daftar efek asli dan efek Weakness Boost terkait
+//   const effectMappings = {
+//     blinded: "Weakness Break Efficiency Boost - Blinded",
+//     frightened: "Weakness Break Efficiency Boost - Frightened",
+//     paralyzed: "Weakness Break Efficiency Boost - Paralyzed",
+//     petrified: "Weakness Break Efficiency Boost - Petrified",
+//     incapacitated: "Weakness Break Efficiency Boost - Incapacitated",
+//     poisoned: "Weakness Break Efficiency Boost - Poisoned",
+//     stunned: "Weakness Break Efficiency Boost - Stunned",
+//   };
+
+//   for (let id of npcUuidArray) {
+//     let tokenDocument = await fromUuid(id);
+//     let token = tokenDocument.object;
+//     let actor = token.actor;
+
+//     if (!actor) continue;
+
+//     let effectsToRemove = [];
+//     let weaknessBoostsToAdd = [];
+
+//     for (let [key, boostEffect] of Object.entries(effectMappings)) {
+//       let matchingEffect = actor.effects.find((e) =>
+//         e.name.toLowerCase().includes(key)
+//       );
+
+//       if (matchingEffect) {
+//         weaknessBoostsToAdd.push({
+//           name: boostEffect,
+//           icon: "icons/magic/control/buff-strength-yellow.webp",
+//           changes: [],
+//           origin: `Actor.${actor.id}`,
+//           disabled: false,
+//           transfer: false,
+//           flags: { "temp-effect": true },
+//         });
+//         console.log(`✅ ${actor.name} mendapatkan efek ${boostEffect}`);
+
+//         effectsToRemove.push(matchingEffect.id);
+//       }
+//     }
+
+//     if (weaknessBoostsToAdd.length > 0) {
+//       await actor.createEmbeddedDocuments("ActiveEffect", weaknessBoostsToAdd);
+//     }
+//   }
+
+//   console.log("📌 NPCs Checked for Weakness Boost:", npcUuidArray);
+// }
+
+// setInterval(() => {
+//   heraldVanguish_checkNpcInCombat();
+// }, 3000);
 
 export { heraldVanguish_renderAccessButton };
