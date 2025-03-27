@@ -3,7 +3,14 @@ import * as vHelper from "./heraldVanguish_helper.js";
 let heraldVanguish_allNpcScene = [];
 let heraldVanguish_listNpcApplyVanguish = [];
 let heraldVanguish_tempAddWeaknessList = {};
+let heraldVanguish_kalkulasiToughness = "CR * 4 + maxHp / 10";
 
+Hooks.once("ready", () => {
+  heraldVanguish_kalkulasiToughness = game.settings.get(
+    "herald-vanguish-beta",
+    "calculatedToughness"
+  );
+});
 async function heraldVanguish_renderAccessButton() {
   const existingBar = document.getElementById(
     "heraldVanguish-accessButtonContainer"
@@ -91,7 +98,20 @@ async function heraldVanguish_calculatedToughness(id) {
   if (isNaN(CR) || CR < 0) {
     return 0;
   }
-  let toughnessValue = Math.ceil(CR * 7 + maxHp / 8);
+  let toughnessValue = 0;
+  try {
+    heraldVanguish_kalkulasiToughness = game.settings.get(
+      "herald-vanguish-beta",
+      "calculatedToughness"
+    );
+    let formula = heraldVanguish_kalkulasiToughness
+      .replace(/CR/g, CR)
+      .replace(/maxHp/g, maxHp);
+
+    toughnessValue = Math.ceil(Function(`return ${formula}`)());
+  } catch (error) {
+    console.error("❌ Error parsing toughness formula:", error);
+  }
 
   return toughnessValue;
 }
@@ -164,7 +184,11 @@ async function heraldVanguish_getDataVanguishMiddle() {
                 </div>
                 <div id="heraldVanguish-dialogNpcMiddleBot" class="heraldVanguish-dialogNpcMiddleBot">
                     <div class="heraldVanguish-dialogNpcCr">CR ${npcCr}</div>
-                    <div id="heraldVanguish-dialogNpcToughness" class="heraldVanguish-dialogNpcToughness" value="${toughnessValue}"  data-npc-id="${tokenUuid}">(Toughness: ${toughnessValue})</div>
+                    <div id="heraldVanguish-dialogNpcToughness" class="heraldVanguish-dialogNpcToughness" value=""  data-npc-id="${tokenUuid}">(Toughness: ${toughnessValue})</div>
+                      <input id="heraldVanguish-hiddenToughnessValue-${tokenUuid}" class="heraldHud-hiddenToughnessValue" type="text" value="${toughnessValue}" style="display: none;"/>
+                    <div id="heraldVanguish-addToughnessContainer" class="heraldVanguish-addToughnessContainer" data-npc-id="${tokenUuid}">
+                      <input id="heraldVanguish-addToughnessValue-${tokenUuid}" class="heraldHud-addToughnessValue" data-npc-id="${tokenUuid}"   type="text" value=""/>
+                    </div>
                 </div>
                 <div id="heraldVanguish-dialogNpcWeaknessContainer" class="heraldVanguish-dialogNpcWeaknessContainer">
                     <div id="heraldVanguish-dialogListWeakness" class="heraldVanguish-dialogListWeakness">${listWeakness}</div>
@@ -193,9 +217,66 @@ async function heraldVanguish_getDataVanguishMiddle() {
           heraldVanguish_showDialogAddWeaknessNpc(npcId);
         });
       });
+
+    for (let npc of sortedNpcList) {
+      let token = npc.getActiveTokens()[0];
+      let tokenUuid = token?.document?.uuid;
+      let inputToughness = document.getElementById(
+        `heraldVanguish-addToughnessValue-${tokenUuid}`
+      );
+      let delayTimer;
+      inputToughness.addEventListener("keydown", (event) => {
+        if (event.key === "Enter") {
+          event.preventDefault();
+          clearTimeout(delayTimer);
+          delayTimer = setTimeout(() => {
+            heraldVanguish_addToughnessManual(tokenUuid, inputToughness.value);
+          }, 500);
+        }
+      });
+    }
   }
 }
 
+async function heraldVanguish_addToughnessManual(id, value) {
+  let inputToughness = document.getElementById(
+    `heraldVanguish-addToughnessValue-${id}`
+  );
+  let toughnessElement = document.querySelector(
+    `#heraldVanguish-dialogNpcToughness[data-npc-id="${id}"]`
+  );
+  let inputHidden = document.getElementById(
+    `heraldVanguish-hiddenToughnessValue-${id}`
+  );
+  if (!toughnessElement) {
+    console.error(`Element toughness untuk NPC ${id} tidak ditemukan.`);
+    return;
+  }
+  let currentToughness =
+    parseInt(toughnessElement.textContent.match(/-?\d+/)?.[0]) || 0;
+
+  value = value.trim();
+  let changeValue = parseInt(value.replace(/[^0-9-+]/g, ""));
+
+  if (isNaN(changeValue)) {
+    console.error(`Nilai toughness '${value}' bukan angka yang valid.`);
+    return;
+  }
+
+  let newToughness =
+    value.startsWith("+") || value.startsWith("-")
+      ? currentToughness + changeValue
+      : changeValue;
+
+  if (inputHidden) {
+    inputHidden.setAttribute("value", newToughness);
+  }
+
+  toughnessElement.textContent = `(Toughness: ${newToughness})`;
+  if (inputToughness) {
+    inputToughness.value = "";
+  }
+}
 async function heraldVanguish_getDataVanguishBottom() {
   let dialogVanguishBotDiv = document.getElementById(
     "heraldVanguish-dialogListNpcBottom"
@@ -294,7 +375,6 @@ async function heraldVanguish_showDialogAddWeaknessNpc(id) {
     document
       .getElementById("heraldVanguish-saveNpcWeaknessContainer")
       ?.addEventListener("click", async (event) => {
-        console.log("test");
         await heraldVanguish_addWeaknessNpc(id);
       });
     await heraldVanguish_getDataDialogWeaknessNpc(id);
@@ -357,8 +437,6 @@ async function heraldVanguish_addWeaknessNpc(id) {
         heraldVanguish_tempAddWeaknessList[id].push(weakness);
       }
     });
-
-  console.log(heraldVanguish_tempAddWeaknessList);
 }
 
 async function heraldVanguish_showDialogAddWeaknessAllNpc() {
@@ -450,8 +528,8 @@ async function heraldVanguish_applyVanguishNpc() {
     let toughness = 0;
     let maxWeakness = 0;
     let listWeakness = [];
-    let toughnessElement = document.querySelector(
-      `#heraldVanguish-dialogNpcToughness[data-npc-id="${id}"]`
+    let toughnessElement = document.getElementById(
+      `heraldVanguish-hiddenToughnessValue-${id}`
     );
     if (toughnessElement) {
       let toughnessValue = Number(toughnessElement.getAttribute("value"));
@@ -468,7 +546,7 @@ async function heraldVanguish_applyVanguishNpc() {
     await tokenDocument.setFlag("world", "heraldVanguish", {
       toughness: toughness,
       maxToughness: toughness,
-      // maxWeakness: maxWeakness,
+      overflowToughness: 0,
     });
 
     let savedData = await tokenDocument.getFlag("world", "heraldVanguish");
@@ -554,34 +632,52 @@ Hooks.on("preUpdateActor", async (actor, updateData, options, userId) => {
 
   let heraldVanguish = await tokenDocument.getFlag("world", "heraldVanguish");
   let newToughness;
+  let remainToughness = 0;
+  let overflowToughness = heraldVanguish.overflowToughness || 0;
   if (heraldVanguish.toughness !== undefined) {
-    newToughness = Math.max(0, heraldVanguish.toughness - toughnessDamage);
+    remainToughness = heraldVanguish.toughness - toughnessDamage;
+    newToughness = Math.max(0, remainToughness);
+
+    if (remainToughness < 0) {
+      overflowToughness += Math.abs(remainToughness);
+    }
     await tokenDocument.setFlag("world", "heraldVanguish", {
       ...heraldVanguish,
       toughness: newToughness,
+      overflowToughness: overflowToughness,
     });
   }
 
   setTimeout(async () => {
     let npcTokenFlag = await tokenDocument.getFlag("world", "heraldVanguish");
     if (npcTokenFlag?.toughness !== undefined && toughnessDamage > 0) {
-      let chatContent = `${actor.name}'s toughness was reduce to ${npcTokenFlag.toughness} / ${npcTokenFlag.maxToughness}`;
+      let chatContent = `${actor.name}'s toughness was reduce to ${
+        npcTokenFlag.toughness
+      } / ${npcTokenFlag.maxToughness} (${Math.abs(toughnessDamage)})`;
       ChatMessage.create({
         content: chatContent,
         speaker: null,
       });
       ui.notifications.info(chatContent);
+      if (remainToughness < 0) {
+        let chatContent = `${actor.name}'s Weakness Break Overflow is now ${
+          npcTokenFlag.overflowToughness
+        } (${Math.abs(remainToughness)})`;
+        ChatMessage.create({
+          content: chatContent,
+          speaker: null,
+        });
+      }
     }
   }, 1000);
 });
 
 Hooks.on("updateActor", async (actor, data) => {
-  console.log("jalan update");
+  console.log("updateActor");
   setTimeout(async () => {
     let tokenDocument = actor.getActiveTokens().find((t) => t.scene)?.document;
     let npcTokenFlag = await tokenDocument.getFlag("world", "heraldVanguish");
 
-    console.log(npcTokenFlag);
     if (npcTokenFlag) {
       if (game.user.isGM) {
         if (npcTokenFlag.toughness <= 0) {
@@ -671,11 +767,11 @@ Hooks.on("updateActor", async (actor, data) => {
               },
             ]);
             let chatContent = `
-            ${actor.name} is now Weakness Broken!
+            ${actor.name} is now Weakness Break!
             <br>
-            "${actor.name} has a [[-4]] penalty to their <b>Armor Class</b> and <b>Damage Rolls</b>, and a [[-2]] penalty to all <b>Saving Throws, Ability Checks, Attack Rolls, and Spell Save DC</b>, alongside their movement speed will drop by 25%, lasting until the end of their next turn.
+            ${actor.name} has a [[-4]] penalty to their <b>Armor Class</b> and <b>Damage Rolls</b>, and a [[-2]] penalty to all <b>Saving Throws, Ability Checks, Attack Rolls, and Spell Save DC</b>, alongside their movement speed will drop by 25%, lasting until the end of their next turn.
             <br>
-            The ${actor.name} gains a stack of <b>Exhaustion</b> which does not get nullified at the end of Weakness Broken."`;
+            The ${actor.name} gains a stack of <b>Exhaustion</b> which does not get nullified at the end of Weakness Break.`;
 
             ChatMessage.create({
               content: chatContent,
@@ -699,6 +795,23 @@ Hooks.on("updateActor", async (actor, data) => {
             });
           }
         }
+        // let maxOverflowToughness = npcTokenFlag.maxToughness * 5;
+        // if (npcTokenFlag.overflowToughness >= maxOverflowToughness) {
+        //   let heraldVanguish = await tokenDocument.getFlag(
+        //     "world",
+        //     "heraldVanguish"
+        //   );
+        //   vHelper.heraldVanguish_effectOverflowWeaknessBroken(
+        //     actor,
+        //     tokenDocument
+        //   );
+        //   let newOverflowToughness =
+        //     npcTokenFlag.overflowToughness - maxOverflowToughness;
+        //   await tokenDocument.setFlag("world", "heraldVanguish", {
+        //     ...heraldVanguish,
+        //     overflowToughness: newOverflowToughness,
+        //   });
+        // }
       }
     }
   }, 500);
@@ -712,19 +825,20 @@ Hooks.on("updateCombat", (combat, update, options, userId) => {
     lastTurn !== null ? combat.combatants.get(lastTurn) : null;
   if (previousCombatant) {
     setTimeout(async () => {
-      console.log(`Turn berakhir untuk: ${previousCombatant.token.name}`);
       let tokenDocument = previousCombatant.token;
-      console.log("TokenDocument:", tokenDocument);
 
       let npcTokenFlag = await tokenDocument.getFlag("world", "heraldVanguish");
       console.log("npcTokenFlag:", npcTokenFlag);
 
       if (npcTokenFlag) {
         if (npcTokenFlag.toughness <= 0) {
-          let toughnessValue = npcTokenFlag.maxToughness;
+          let toughnessValue =
+            npcTokenFlag.maxToughness -
+            Math.floor(npcTokenFlag.overflowToughness / 5);
           await tokenDocument.setFlag("world", "heraldVanguish", {
             ...npcTokenFlag,
             toughness: toughnessValue,
+            overflowToughness: 0,
           });
 
           let chatContent = `${tokenDocument.name} has regained their toughness and recovered from their Weakness Broken State`;
@@ -735,8 +849,6 @@ Hooks.on("updateCombat", (combat, update, options, userId) => {
           });
           let uiNotifContent = `${tokenDocument.name} has regained their toughness ${toughnessValue}`;
           ui.notifications.info(uiNotifContent);
-
-          console.log("Notifikasi dan chat dikirim.");
         }
       }
     }, 500);

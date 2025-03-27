@@ -112,12 +112,32 @@
     gap: 5px;
     font-size: 12;
     color: gray;
+    align-items: center;
 }
 
 
 .heraldVanguish-dialogNpcCr {
     font-size: 12px;
     color: gray;
+}
+
+.heraldVanguish-addToughnessContainer {
+    width: 30px;
+    text-align: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.heraldVanguish-addToughnessValue {
+    background: none !important;
+    border: none !important;
+    outline: none !important;
+    color: white !important;
+    font-size: 12px;
+    text-align: center;
+    width: 100%;
+    appearance: none;
 }
 
 
@@ -128,7 +148,8 @@
     gap: 3px;
 
 }
-.heraldVanguish-dialogListWeakness{
+
+.heraldVanguish-dialogListWeakness {
     display: flex;
     gap: 2px;
 }
@@ -194,7 +215,7 @@
     display: flex;
     justify-content: flex-end;
     gap: 5px;
-   padding-bottom: 5px;
+    padding-bottom: 5px;
 }
 
 
