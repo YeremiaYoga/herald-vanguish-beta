@@ -766,8 +766,7 @@ Hooks.on("updateActor", async (actor, data) => {
                 },
               },
             ]);
-            let chatContent = `
-            ${actor.name} is now Weakness Break!
+            let chatContent = `<b>${actor.name} is now Weakness Break!</b>
             <br>
             ${actor.name} has a [[-4]] penalty to their <b>Armor Class</b> and <b>Damage Rolls</b>, and a [[-2]] penalty to all <b>Saving Throws, Ability Checks, Attack Rolls, and Spell Save DC</b>, alongside their movement speed will drop by 25%, lasting until the end of their next turn.
             <br>

@@ -1,9 +1,11 @@
 import * as herald_vanguish from "./heraldVanguish.js";
 
 Hooks.on("ready", () => {
-  setTimeout(async () => {
-    herald_vanguish.heraldVanguish_renderAccessButton();
-  }, 1000);
+  if (game.user.isGM) {
+    setTimeout(async () => {
+      herald_vanguish.heraldVanguish_renderAccessButton();
+    }, 1000);
+  }
 });
 
 Hooks.on("init", () => {
@@ -15,8 +17,9 @@ Hooks.on("init", () => {
     type: String,
     default: "CR * 4 + maxHp / 10",
     onChange: (value) => {
-      console.log(value);
-      herald_vanguish.heraldVanguish_renderAccessButton();
+      if (game.user.isGM) {
+        herald_vanguish.heraldVanguish_renderAccessButton();
+      }
     },
   });
 });
