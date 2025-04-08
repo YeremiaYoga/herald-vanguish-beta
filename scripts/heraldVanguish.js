@@ -550,8 +550,95 @@ async function heraldVanguish_applyVanguishNpc() {
     });
 
     let savedData = await tokenDocument.getFlag("world", "heraldVanguish");
-    console.log(`Flag set untuk ${npc.name}:`, savedData);
+    console.log(tokenDocument.getFlag("barbrawl", "resourceBars"));
+    setTimeout(async () => {
+      await heraldVanguish_addToughnessBar(tokenDocument);
+    }, 500);
   }
+}
+
+async function heraldVanguish_addToughnessBar(tokenDocument) {
+  const existingBars =
+    (await tokenDocument.getFlag("barbrawl", "resourceBars")) || {};
+
+  if (existingBars["toughness"]) {
+    delete existingBars["toughness"];
+    await tokenDocument.setFlag("barbrawl", "resourceBars", existingBars);
+  }
+  let highestOrder = Math.max(
+    0,
+    ...Object.values(existingBars).map((b) => b.order ?? 0)
+  );
+
+  const heraldVanguishFlag = await tokenDocument.getFlag(
+    "world",
+    "heraldVanguish"
+  );
+
+  const newBarConfig = {
+    id: "toughness",
+    attribute: "custom",
+    value: heraldVanguishFlag.toughness,
+    max: heraldVanguishFlag.maxToughness,
+    ownerVisibility: CONST.TOKEN_DISPLAY_MODES.ALWAYS,
+    otherVisibility: CONST.TOKEN_DISPLAY_MODES.NONE,
+    gmVisibility: -1,
+    hideCombat: false,
+    hideNoCombat: false,
+    hideEmpty: false,
+    hideFull: false,
+    hideHud: false,
+    mincolor: "#000080",
+    maxcolor: "#80B3FF",
+    position: "top-inner",
+    indentLeft: null,
+    indentRight: null,
+    shareHeight: false,
+    style: "fraction",
+    opacity: null,
+    ignoreMin: false,
+    ignoreMax: false,
+    invert: false,
+    invertDirection: false,
+    label: "Toughness",
+    subdivisions: null,
+    subdivisionsOwner: false,
+    intentLeft: 0,
+    fgImage: "",
+    bgImage: "",
+    order: existingBars["toughness"]?.order ?? highestOrder + 1,
+  };
+
+  const updatedBars = {
+    ...existingBars,
+    toughness: newBarConfig,
+  };
+
+  await tokenDocument.setFlag("barbrawl", "resourceBars", updatedBars);
+  console.log("🔄 Toughness bar telah ditambahkan atau diupdate.");
+}
+
+async function heraldVanguish_updateToughnessBar(tokenDocument) {
+  const existingBars =
+    (await tokenDocument.getFlag("barbrawl", "resourceBars")) || {};
+
+  if (!existingBars["toughness"]) {
+    console.warn("⚠️ Toughness bar belum ada. Tidak bisa diupdate.");
+    return;
+  }
+
+  const heraldVanguishFlag = await tokenDocument.getFlag(
+    "world",
+    "heraldVanguish"
+  );
+
+  existingBars["toughness"].value = heraldVanguishFlag.toughness;
+  existingBars["toughness"].max = heraldVanguishFlag.maxToughness;
+
+  console.log(heraldVanguishFlag);
+  console.log(existingBars);
+  await tokenDocument.setFlag("barbrawl", "resourceBars", existingBars);
+  console.log("🔄 Toughness bar berhasil diupdate.");
 }
 
 async function heraldVanguish_applyToughnessAllNpc() {
@@ -667,6 +754,14 @@ Hooks.on("preUpdateActor", async (actor, updateData, options, userId) => {
           content: chatContent,
           speaker: null,
         });
+      }
+
+      const existingBars = await tokenDocument.getFlag(
+        "barbrawl",
+        "resourceBars"
+      );
+      if (existingBars["toughness"]) {
+        heraldVanguish_updateToughnessBar(tokenDocument);
       }
     }
   }, 1000);
@@ -848,6 +943,13 @@ Hooks.on("updateCombat", (combat, update, options, userId) => {
           });
           let uiNotifContent = `${tokenDocument.name} has regained their toughness ${toughnessValue}`;
           ui.notifications.info(uiNotifContent);
+          const existingBars = await tokenDocument.getFlag(
+            "barbrawl",
+            "resourceBars"
+          );
+          if (existingBars["toughness"]) {
+            heraldVanguish_updateToughnessBar(tokenDocument);
+          }
         }
       }
     }, 500);
