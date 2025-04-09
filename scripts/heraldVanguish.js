@@ -797,7 +797,7 @@ Hooks.on("preUpdateActor", async (actor, updateData, options, userId) => {
   setTimeout(async () => {
     let npcTokenFlag = await tokenDocument.getFlag("world", "heraldVanguish");
     if (npcTokenFlag?.toughness !== undefined && toughnessDamage > 0) {
-      if (npcTokenFlag?.toughness <= 0) {
+      if (npcTokenFlag?.toughness > 0) {
         let chatContent = `${actor.name}'s toughness was reduce to ${
           npcTokenFlag.toughness
         } / ${npcTokenFlag.maxToughness} (${Math.abs(toughnessDamage)})`;
