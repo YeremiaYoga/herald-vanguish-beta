@@ -1,9 +1,11 @@
 import * as herald_vanguish from "./heraldVanguish.js";
+import * as elementPlayer from "./elementPlayer.js";
 
 Hooks.on("ready", () => {
   if (game.user.isGM) {
     setTimeout(async () => {
       herald_vanguish.heraldVanguish_renderAccessButton();
+      elementPlayer.heraldVanguish_renderElementPlayerButton();
     }, 1000);
   }
 });

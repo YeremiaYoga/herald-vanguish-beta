@@ -31,6 +31,8 @@
 }
 
 
+
+
 .heraldVanguish-dialogListNpcMiddle {
     padding-bottom: 20%;
 }
@@ -266,4 +268,108 @@
 
 .heraldVanguish-saveListNpc:hover {
     background-color: #218838;
+}
+
+
+
+
+/* //////////////////////////////////////////////////////// //////////////////////////////////////////////////////// 
+//////////////////////////////////////////////////////// //////////////////////////////////////////////////////// 
+//////////////////////////////////////////////////////// //////////////////////////////////////////////////////// 
+//////////////////////////////////////////////////////// //////////////////////////////////////////////////////// 
+//////////////////////////////////////////////////////// //////////////////////////////////////////////////////// */
+
+
+.heraldVanguish-accessElementContainer {
+    position: fixed;
+    bottom: 6vh;
+    left: 72vw;
+    transform: translateX(-50%);
+    z-index: 5;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.heraldVanguish-elementPlayerButton {
+    background-color: rgba(0, 0, 0, 0.7);
+    width: 30px;
+    height: 30px;
+    color: white;
+    font-size: 16px;
+    border: none;
+    cursor: pointer;
+    border-radius: 5px;
+    margin-bottom: 5px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transition: background-color 0.3s ease;
+    -webkit-border-radius: 5px;
+    -moz-border-radius: 5px;
+    -ms-border-radius: 5px;
+    -o-border-radius: 5px;
+}
+
+
+.heraldVanguish-dialogListCharacterMiddle {
+    padding-bottom: 20%;
+}
+
+.heraldVanguish-dialogCharacterContainer {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 5px;
+    border-bottom: 1px solid #ccc;
+}
+
+.heraldVanguish-dialogCharacterMiddleTop {
+    display: flex;
+    gap: 5px;
+    align-items: center;
+}
+
+.heraldVanguish-dialogCharacterName {
+    font-weight: bold;
+    font-size: 16px;
+}
+
+.heraldVanguish-dialogCharacterMiddleMid {
+    display: flex;
+    gap: 5px;
+    align-items: center;
+}
+
+.heraldVanguish-dialogListCharacterBottom {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    padding: 10px;
+    z-index: 14;
+}
+
+.heraldVanguish-dialogListNpcBottomTop {
+    display: flex;
+    justify-content: flex-end;
+    gap: 5px;
+    padding-bottom: 5px;
+}
+
+.heraldVanguish-saveListCharacterContainer {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+}
+
+.heraldVanguish-saveListCharacter {
+    padding: 2px 5px;
+    background-color: #28a745;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 12px;
 }
