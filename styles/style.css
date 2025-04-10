@@ -373,3 +373,84 @@
     cursor: pointer;
     font-size: 12px;
 }
+
+.heraldVanguish-elementCharacterContainer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+}
+
+.heraldVanguish-selectCharacterElementContainer {
+    display: flex;
+    gap: 10px;
+}
+
+.heraldVanguish-characterElement1Container {
+    width: 150px;
+    height: 150px;
+    border-radius: 50%;
+    border: 2px solid black;
+    -webkit-border-radius: 50%;
+    -moz-border-radius: 50%;
+    -ms-border-radius: 50%;
+    -o-border-radius: 50%;
+    cursor: pointer;
+    align-items: center;
+    display: flex;
+    justify-content: center;
+}
+
+.heraldVanguish-characterElement2Container {
+    width: 150px;
+    height: 150px;
+    border-radius: 50%;
+    border: 2px solid black;
+    -webkit-border-radius: 50%;
+    -moz-border-radius: 50%;
+    -ms-border-radius: 50%;
+    -o-border-radius: 50%;
+    cursor: pointer;
+    align-items: center;
+    display: flex;
+    justify-content: center;
+}
+
+.heraldVanguish-selectedElementContainer {
+    display: flex;
+    gap: 5px;
+    align-items: center;
+    padding: 5px;
+    cursor: pointer;
+}
+
+
+.heraldVanguish-dialogCharacterElementBotContainer {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    padding: 10px;
+    z-index: 14;
+}
+
+.heraldVanguish-saveElementCharacterContainer {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+}
+
+.heraldVanguish-saveElementCharacter {
+    padding: 2px 5px;
+    color: black;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 12px;
+}
+
+.heraldVanguish-listAnotherCharacterContainer {
+    width: 100px;
+    height: 300px;
+    border: 2px solid black;
+}

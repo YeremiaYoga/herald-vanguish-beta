@@ -2,12 +2,26 @@ import * as herald_vanguish from "./heraldVanguish.js";
 import * as elementPlayer from "./elementPlayer.js";
 
 Hooks.on("ready", () => {
-  if (game.user.isGM) {
-    setTimeout(async () => {
+  setTimeout(async () => {
+    if (game.user.isGM) {
       herald_vanguish.heraldVanguish_renderAccessButton();
       elementPlayer.heraldVanguish_renderElementPlayerButton();
-    }, 1000);
-  }
+    } else {
+      const user = game.user;
+      const selectedActor = user.character;
+      console.log(selectedActor);
+      if (selectedActor) {
+        const tokens = selectedActor.getActiveTokens(true);
+        if (tokens.length > 0) {
+          const tokenDocument = tokens[0].document;
+          const flag = await tokenDocument.getFlag("world", "heraldVanguish");
+          if (flag?.elementActive === true) {
+            elementPlayer.heraldVanguish_renderElementPlayerButton();
+          }
+        }
+      }
+    }
+  }, 1000);
 });
 
 Hooks.on("init", () => {

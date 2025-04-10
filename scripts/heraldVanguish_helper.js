@@ -261,8 +261,53 @@ async function heraldVanguish_effectOverflowWeaknessBroken(
   }
 }
 
+function heraldVanguish_getElementSelectedIcon(type, element) {
+  const basePath = "/systems/dnd5e/icons/svg/damage/";
+  const validTypes = {
+    acid: "Acid",
+    bludgeoning: "Bludgeoning",
+    cold: "Cold",
+    fire: "Fire",
+    force: "Force",
+    lightning: "Lightning",
+    necrotic: "Necrotic",
+    piercing: "Piercing",
+    poison: "Poison",
+    psychic: "Psychic",
+    radiant: "Radiant",
+    slashing: "Slashing",
+    thunder: "Thunder",
+    healing: "Healing",
+    temphp: "Temporary HP",
+  };
+
+  let iconType = validTypes[type] ? type : "";
+
+  return `
+      <div id="heraldVanguish-elementIconContainer-${element}" class="heraldVanguish-elementIconContainer" data-name="${type}">
+        <img src="${basePath}${iconType}.svg" width="100" height="100" style="border:none;">
+      </div>
+    `;
+}
+
+async function heraldVanguish_getDataUuidSelectedCharacter() {
+  const user = game.user;
+  const selectedActor = user.character;
+  let tokenDocument = "";
+  let uuid = "";
+  if (selectedActor) {
+    const tokens = selectedActor.getActiveTokens(true);
+    if (tokens.length > 0) {
+      tokenDocument = tokens[0].document;
+      uuid = tokenDocument.uuid;
+    }
+  }
+  return uuid;
+}
 export {
   heraldVanguish_getGameIconDamage,
   heraldVanguish_effectWeaknessBroken,
   heraldVanguish_effectOverflowWeaknessBroken,
+  heraldVanguish_getElementSelectedIcon,
+  heraldVanguish_getDataUuidSelectedCharacter,
 };

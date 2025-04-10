@@ -642,7 +642,7 @@ async function heraldVanguish_addToughnessBar(tokenDocument) {
     value: heraldVanguishFlag.toughness,
     max: heraldVanguishFlag.maxToughness,
     ownerVisibility: CONST.TOKEN_DISPLAY_MODES.ALWAYS,
-    otherVisibility: CONST.TOKEN_DISPLAY_MODES.NONE,
+    otherVisibility: CONST.TOKEN_DISPLAY_MODES.ALWAYS,
     gmVisibility: -1,
     hideCombat: false,
     hideNoCombat: false,
