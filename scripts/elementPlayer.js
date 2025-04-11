@@ -64,7 +64,6 @@ async function heraldVanguish_getDataAllPlayerScene() {
     .filter((t) => t.actor.type === "character")
     .map((t) => t.actor);
   await heraldVanguish_showDialogSelectCharacter();
-  console.log(heraldVanguish_allPlayerScene);
 }
 
 async function heraldVanguish_showDialogSelectCharacter() {
@@ -593,7 +592,6 @@ async function heraldVanguish_updateTrackerElementGroup() {
       </div>
       `;
     }
-    console.log(actor.playerColor);
   }
 
   if (trackerContainerDiv) {

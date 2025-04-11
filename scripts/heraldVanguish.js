@@ -4,6 +4,7 @@ let heraldVanguish_allNpcScene = [];
 let heraldVanguish_listNpcApplyVanguish = [];
 let heraldVanguish_tempAddWeaknessList = {};
 let heraldVanguish_kalkulasiToughness = "CR * 4 + maxHp / 10";
+let heraldVanguish_attackerUuid = "";
 
 Hooks.once("ready", () => {
   heraldVanguish_kalkulasiToughness = game.settings.get(
@@ -45,8 +46,6 @@ async function heraldVanguish_renderAccessButton() {
       console.error("Gagal memuat template resetButton playerlist.html: ", err);
     });
 }
-
-
 
 async function heraldVanguish_getDataAllNpcScene() {
   heraldVanguish_allNpcScene = [];
@@ -413,9 +412,13 @@ async function heraldVanguish_getDataDialogWeaknessNpc(id) {
   let listWeaknessdamage = "";
 
   for (let type in validTypes) {
-    const isChecked = heraldVanguish_tempAddWeaknessList[id].includes(type)
-      ? "checked"
-      : "";
+    let isChecked = ``;
+    if (heraldVanguish_tempAddWeaknessList[id]) {
+      isChecked = heraldVanguish_tempAddWeaknessList[id].includes(type)
+        ? "checked"
+        : "";
+    }
+
     listWeaknessdamage += `
       <div class="heraldVanguish-npcWeaknessCheckboxContainer">
         <input id="heraldVanguish-npcWeaknessCheckbox" class="heraldVanguish-npcWeaknessCheckbox" type="checkbox" name="weakness" value="${type}" ${isChecked}>
@@ -610,8 +613,6 @@ async function heraldVanguish_applyVanguishNpc() {
       listWeakness: heraldVanguish_tempAddWeaknessList[id],
     });
 
-    let savedData = await tokenDocument.getFlag("world", "heraldVanguish");
-    console.log(tokenDocument.getFlag("barbrawl", "resourceBars"));
     setTimeout(async () => {
       await heraldVanguish_addToughnessBar(tokenDocument);
     }, 500);
@@ -719,7 +720,12 @@ async function heraldVanguish_applyToughnessAllNpc() {
   }
 }
 
-async function heraldVanguish_calculatedToughnessDamage(damage, uuid) {
+async function heraldVanguish_calculatedToughnessDamage(
+  damage,
+  uuid,
+  attackerUuid
+) {
+  let attackerDocument = await fromUuid(attackerUuid);
   let tokenDocument = await fromUuid(uuid);
   let token = tokenDocument.object;
   let actor = token.actor;
@@ -748,6 +754,18 @@ async function heraldVanguish_calculatedToughnessDamage(damage, uuid) {
     }
   }
 
+  let attackerFlag = await attackerDocument.getFlag("world", "heraldVanguish");
+  let targetFlag = await tokenDocument.getFlag("world", "heraldVanguish");
+
+  if (targetFlag) {
+    if (targetFlag.listWeakness.includes(attackerFlag.element1)) {
+      elementBoost += 1;
+    }
+    if (targetFlag.listWeakness.includes(attackerFlag.element2)) {
+      elementBoost += 1;
+    }
+  }
+
   let finalToughnessDamage = Math.floor(
     damage * elementBoost * (weaknessBoost * 0.01)
   );
@@ -771,28 +789,33 @@ Hooks.on("preUpdateActor", async (actor, updateData, options, userId) => {
     damageTaken = oldHP - newHP + (oldTempHP - newTempHP);
   }
   let tokenDocument = actor.getActiveTokens().find((t) => t.scene)?.document;
-  let toughnessDamage = await heraldVanguish_calculatedToughnessDamage(
-    damageTaken,
-    tokenDocument.uuid
-  );
-
+  let toughnessDamage = 0;
   let heraldVanguish = await tokenDocument.getFlag("world", "heraldVanguish");
   let newToughness;
   let remainToughness = 0;
   let overflowToughness = heraldVanguish.overflowToughness || 0;
-  if (heraldVanguish.toughness !== undefined) {
-    remainToughness = heraldVanguish.toughness - toughnessDamage;
-    newToughness = Math.max(0, remainToughness);
-
-    if (remainToughness < 0) {
-      overflowToughness += Math.abs(remainToughness);
+  setTimeout(async () => {
+    if (heraldVanguish_attackerUuid) {
+      toughnessDamage = await heraldVanguish_calculatedToughnessDamage(
+        damageTaken,
+        tokenDocument.uuid,
+        heraldVanguish_attackerUuid
+      );
     }
-    await tokenDocument.setFlag("world", "heraldVanguish", {
-      ...heraldVanguish,
-      toughness: newToughness,
-      overflowToughness: overflowToughness,
-    });
-  }
+    if (heraldVanguish.toughness !== undefined) {
+      remainToughness = heraldVanguish.toughness - toughnessDamage;
+      newToughness = Math.max(0, remainToughness);
+
+      if (remainToughness < 0) {
+        overflowToughness += Math.abs(remainToughness);
+      }
+      await tokenDocument.setFlag("world", "heraldVanguish", {
+        ...heraldVanguish,
+        toughness: newToughness,
+        overflowToughness: overflowToughness,
+      });
+    }
+  }, 200);
 
   setTimeout(async () => {
     let npcTokenFlag = await tokenDocument.getFlag("world", "heraldVanguish");
@@ -1018,75 +1041,24 @@ Hooks.on("updateCombat", (combat, update, options, userId) => {
 
   lastTurn = combat.current.combatantId;
 });
+let heraldVanguishSocket;
 
-// async function heraldVanguish_checkNpcInCombat() {
-//   let combat = game.combat;
-//   if (!combat || !combat.started) return;
+Hooks.once("socketlib.ready", () => {
+  heraldVanguishSocket = socketlib.registerModule("herald-vanguish-beta");
 
-//   let npcUuidArray = combat.combatants
-//     .filter(
-//       (c) =>
-//         c.actor &&
-//         c.actor.type === "npc" &&
-//         c.token?.getFlag("world", "heraldVanguish")?.toughness !== undefined
-//     )
-//     .map((c) => c.token.uuid);
+  heraldVanguishSocket.register("sendAttackerUuid", (uuid) => {
+    heraldVanguish_attackerUuid = uuid;
+  });
+});
 
-//   // Daftar efek asli dan efek Weakness Boost terkait
-//   const effectMappings = {
-//     blinded: "Weakness Break Efficiency Boost - Blinded",
-//     frightened: "Weakness Break Efficiency Boost - Frightened",
-//     paralyzed: "Weakness Break Efficiency Boost - Paralyzed",
-//     petrified: "Weakness Break Efficiency Boost - Petrified",
-//     incapacitated: "Weakness Break Efficiency Boost - Incapacitated",
-//     poisoned: "Weakness Break Efficiency Boost - Poisoned",
-//     stunned: "Weakness Break Efficiency Boost - Stunned",
-//   };
+Hooks.on("midi-qol.RollComplete", (workflow) => {
+  const tokenDocumentUuid = workflow.token?.document?.uuid;
 
-//   for (let id of npcUuidArray) {
-//     let tokenDocument = await fromUuid(id);
-//     let token = tokenDocument.object;
-//     let actor = token.actor;
+  if (tokenDocumentUuid && !game.user.isGM) {
+    heraldVanguishSocket.executeAsGM("sendAttackerUuid", tokenDocumentUuid);
+  } else if (tokenDocumentUuid && game.user.isGM) {
+    heraldVanguish_attackerUuid = tokenDocumentUuid;
+  }
+});
 
-//     if (!actor) continue;
-
-//     let effectsToRemove = [];
-//     let weaknessBoostsToAdd = [];
-
-//     for (let [key, boostEffect] of Object.entries(effectMappings)) {
-//       let matchingEffect = actor.effects.find((e) =>
-//         e.name.toLowerCase().includes(key)
-//       );
-
-//       if (matchingEffect) {
-//         weaknessBoostsToAdd.push({
-//           name: boostEffect,
-//           icon: "icons/magic/control/buff-strength-yellow.webp",
-//           changes: [],
-//           origin: `Actor.${actor.id}`,
-//           disabled: false,
-//           transfer: false,
-//           flags: { "temp-effect": true },
-//         });
-//         console.log(`✅ ${actor.name} mendapatkan efek ${boostEffect}`);
-
-//         effectsToRemove.push(matchingEffect.id);
-//       }
-//     }
-
-//     if (weaknessBoostsToAdd.length > 0) {
-//       await actor.createEmbeddedDocuments("ActiveEffect", weaknessBoostsToAdd);
-//     }
-//   }
-
-//   console.log("📌 NPCs Checked for Weakness Boost:", npcUuidArray);
-// }
-
-// setInterval(() => {
-//   heraldVanguish_checkNpcInCombat();
-// }, 3000);
-
-export {
-  heraldVanguish_renderAccessButton,
-
-};
+export { heraldVanguish_renderAccessButton };
