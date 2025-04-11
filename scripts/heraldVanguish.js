@@ -815,40 +815,39 @@ Hooks.on("preUpdateActor", async (actor, updateData, options, userId) => {
         overflowToughness: overflowToughness,
       });
     }
-  }, 200);
-
-  setTimeout(async () => {
-    let npcTokenFlag = await tokenDocument.getFlag("world", "heraldVanguish");
-    if (npcTokenFlag?.toughness !== undefined && toughnessDamage > 0) {
-      if (npcTokenFlag?.toughness > 0) {
-        let chatContent = `${actor.name}'s toughness was reduce to ${
-          npcTokenFlag.toughness
-        } / ${npcTokenFlag.maxToughness} (${Math.abs(toughnessDamage)})`;
-        ChatMessage.create({
-          content: chatContent,
-          speaker: null,
-        });
-        ui.notifications.info(chatContent);
-      }
-      if (remainToughness < 0) {
-        let chatContent = `${actor.name}'s Weakness Break Overflow is now ${
-          npcTokenFlag.overflowToughness
-        } (${Math.abs(remainToughness)})`;
-        ChatMessage.create({
-          content: chatContent,
-          speaker: null,
-        });
-      }
-
-      const existingBars = await tokenDocument.getFlag(
-        "barbrawl",
-        "resourceBars"
-      );
-      if (existingBars["toughness"]) {
-        heraldVanguish_updateToughnessBar(tokenDocument);
-      }
+    const existingBars = await tokenDocument.getFlag(
+      "barbrawl",
+      "resourceBars"
+    );
+    if (existingBars["toughness"]) {
+      heraldVanguish_updateToughnessBar(tokenDocument);
     }
-  }, 500);
+    heraldVanguish = await tokenDocument.getFlag("world", "heraldVanguish");
+    console.log(heraldVanguish);
+    setTimeout(async () => {
+      if (heraldVanguish?.toughness !== undefined && toughnessDamage > 0) {
+        if (heraldVanguish?.toughness > 0) {
+          let chatContent = `${actor.name}'s toughness was reduce to ${
+            heraldVanguish.toughness
+          } / ${heraldVanguish.maxToughness} (${Math.abs(toughnessDamage)})`;
+          ChatMessage.create({
+            content: chatContent,
+            speaker: null,
+          });
+          ui.notifications.info(chatContent);
+        }
+        if (remainToughness < 0) {
+          let chatContent = `${actor.name}'s Weakness Break Overflow is now ${
+            heraldVanguish.overflowToughness
+          } (${Math.abs(remainToughness)})`;
+          ChatMessage.create({
+            content: chatContent,
+            speaker: null,
+          });
+        }
+      }
+    }, 500);
+  }, 200);
 });
 
 Hooks.on("updateActor", async (actor, data) => {
