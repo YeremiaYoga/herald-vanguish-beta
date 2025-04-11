@@ -9,7 +9,6 @@ Hooks.on("ready", () => {
     } else {
       const user = game.user;
       const selectedActor = user.character;
-      console.log(selectedActor);
       if (selectedActor) {
         const tokens = selectedActor.getActiveTokens(true);
         if (tokens.length > 0) {

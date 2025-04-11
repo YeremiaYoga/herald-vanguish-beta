@@ -1,6 +1,22 @@
 import * as vHelper from "./heraldVanguish_helper.js";
 let heraldVanguish_allPlayerScene = [];
 let heraldVanguish_listCharacterApplyElement = [];
+let heraldVanguish_listUuidActiveCharacter = [];
+let heraldVanguish_groupElementApply = {
+  acid: 0,
+  bludgeoning: 0,
+  cold: 0,
+  fire: 0,
+  force: 0,
+  lightning: 0,
+  necrotic: 0,
+  piercing: 0,
+  poison: 0,
+  psychic: 0,
+  radiant: 0,
+  slashing: 0,
+  thunder: 0,
+};
 
 async function heraldVanguish_renderElementPlayerButton() {
   const existingBar = document.getElementById(
@@ -29,6 +45,7 @@ async function heraldVanguish_renderElementPlayerButton() {
           heraldVanguish_getDataAllPlayerScene();
         } else {
           heraldVanguish_showDialogElementPlayer();
+          heraldVanguish_getAllElementInGroup();
         }
       });
 
@@ -237,7 +254,7 @@ async function heraldVanguish_showDialogElementPlayer() {
   }).render(true);
   Hooks.once("renderDialog", async (app) => {
     if (app instanceof Dialog && app.title === "Weakness Type") {
-      const width = 700;
+      const width = 600;
       const height = 500;
 
       app.setPosition({
@@ -250,6 +267,7 @@ async function heraldVanguish_showDialogElementPlayer() {
     }
     await heraldVanguish_getDataCharacterElementMiddle();
     await heraldVanguish_getDataCharacterElementBottom();
+    await heraldVanguish_updateTrackerElementGroup();
   });
 }
 
@@ -391,8 +409,14 @@ async function heraldVanguish_getDataDialogElementCharacter(
   let listWeaknessdamage = "";
 
   for (let type in validTypes) {
+    const disabled = heraldVanguish_groupElementApply[type] >= 2;
+    const style = disabled
+      ? "text-decoration: line-through; opacity: 0.5; cursor: not-allowed;"
+      : "";
     listWeaknessdamage += `
-      <div class="heraldVanguish-selectedElementContainer" data-name="${type}">
+      <div class="heraldVanguish-selectedElementContainer" data-name="${type}" style="${style}" ${
+      disabled ? 'data-disabled="true"' : ""
+    }>
         ${vHelper.heraldVanguish_getGameIconDamage(type)}
         <div class="heraldVanguish-weaknessDamageName">${validTypes[type]}</div>
       </div>
@@ -496,30 +520,84 @@ async function heraldVanguish_addElementToCharacter() {
     });
   }
   heraldVanguish = await tokenDocument.getFlag("world", "heraldVanguish");
-  console.log(heraldVanguish);
+  await heraldVanguish_updateTrackerElementGroup();
 }
-async function name(params) {
-  const myActors = game.actors.filter(
-    (actor) =>
-      actor.hasPlayerOwner && actor.testUserPermission(game.user, "OWNER")
-  );
-  for (let actor of myActors) {
-    const activeTokens = actor.getActiveTokens(true);
-    for (let token of activeTokens) {
-      const tokenDocument = token.document;
-      let heraldVanguish = await tokenDocument.getFlag(
-        "world",
-        "heraldVanguish"
-      );
-      if (heraldVanguish?.elementActive === true) {
-        await tokenDocument.setFlag("world", "heraldVanguish", {
-          ...heraldVanguish,
-          elementActive: false,
-        });
+async function heraldVanguish_getAllElementInGroup() {
+  heraldVanguish_listUuidActiveCharacter = [];
+  heraldVanguish_listUuidActiveCharacter =
+    await vHelper.heraldVanguish_getCharacterAllUuidActive();
+  for (let key in heraldVanguish_groupElementApply) {
+    heraldVanguish_groupElementApply[key] = 0;
+  }
+  for (let actor of heraldVanguish_listUuidActiveCharacter) {
+    let tokenDocument = await fromUuid(actor.uuid);
+    let heraldVanguish = await tokenDocument.getFlag("world", "heraldVanguish");
+    if (heraldVanguish) {
+      const { element1, element2 } = heraldVanguish;
+
+      if (
+        element1 &&
+        heraldVanguish_groupElementApply.hasOwnProperty(element1)
+      ) {
+        heraldVanguish_groupElementApply[element1]++;
       }
-      heraldVanguish = await tokenDocument.getFlag("world", "heraldVanguish");
-      console.log(heraldVanguish);
+
+      if (
+        element2 &&
+        heraldVanguish_groupElementApply.hasOwnProperty(element2)
+      ) {
+        heraldVanguish_groupElementApply[element2]++;
+      }
     }
+  }
+}
+
+async function heraldVanguish_updateTrackerElementGroup() {
+  const user = game.user;
+  const selectedActor = user.character;
+  let userTokenDocument = "";
+  if (selectedActor) {
+    const tokens = selectedActor.getActiveTokens(true);
+    if (tokens.length > 0) {
+      userTokenDocument = tokens[0].document;
+    }
+  }
+  heraldVanguish_listUuidActiveCharacter =
+    await vHelper.heraldVanguish_getCharacterAllUuidActive();
+
+  let trackerContainerDiv = document.getElementById(
+    "heraldVanguish-listAnotherCharacterContainer"
+  );
+  let listTrackerElement = ``;
+  for (let actor of heraldVanguish_listUuidActiveCharacter) {
+    let tokenDocument = await fromUuid(actor.uuid);
+    // if (userTokenDocument == tokenDocument) {
+    //   continue;
+    // }
+    let heraldVanguish = await tokenDocument.getFlag("world", "heraldVanguish");
+    if (heraldVanguish) {
+      const { element1, element2 } = heraldVanguish;
+
+      listTrackerElement += `
+      <div class="heraldVanguish-trackerElementCharaterContainer">
+        <div class="heraldVanguish-trackerElement1Container" style="border:2px solid ${
+          actor.playerColor
+        }">
+          ${vHelper.heraldVanguish_getGameIconDamage(element1)}
+        </div>
+        <div class="heraldVanguish-trackerElement2Container" style="border:2px solid ${
+          actor.playerColor
+        }">
+          ${vHelper.heraldVanguish_getGameIconDamage(element2)}
+        </div>
+      </div>
+      `;
+    }
+    console.log(actor.playerColor);
+  }
+
+  if (trackerContainerDiv) {
+    trackerContainerDiv.innerHTML = listTrackerElement;
   }
 }
 

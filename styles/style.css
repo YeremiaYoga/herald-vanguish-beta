@@ -383,7 +383,8 @@
 
 .heraldVanguish-selectCharacterElementContainer {
     display: flex;
-    gap: 10px;
+    gap: 15px;
+    margin-left: 10%;
 }
 
 .heraldVanguish-characterElement1Container {
@@ -451,6 +452,42 @@
 
 .heraldVanguish-listAnotherCharacterContainer {
     width: 100px;
-    height: 300px;
-    border: 2px solid black;
+    height: 400px;
+    overflow-y: auto;
+    
+
+}
+
+.heraldVanguish-trackerElementCharaterContainer {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 10px;
+}
+
+.heraldVanguish-trackerElement1Container {
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    -webkit-border-radius: 50%;
+    -moz-border-radius: 50%;
+    -ms-border-radius: 50%;
+    -o-border-radius: 50%;
+}
+
+.heraldVanguish-trackerElement2Container {
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    -webkit-border-radius: 50%;
+    -moz-border-radius: 50%;
+    -ms-border-radius: 50%;
+    -o-border-radius: 50%;
 }

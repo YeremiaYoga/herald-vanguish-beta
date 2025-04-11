@@ -290,24 +290,29 @@ function heraldVanguish_getElementSelectedIcon(type, element) {
     `;
 }
 
-async function heraldVanguish_getDataUuidSelectedCharacter() {
-  const user = game.user;
-  const selectedActor = user.character;
-  let tokenDocument = "";
-  let uuid = "";
-  if (selectedActor) {
-    const tokens = selectedActor.getActiveTokens(true);
+async function heraldVanguish_getCharacterAllUuidActive() {
+  const activePlayers = game.users.filter((user) => {
+    return user.active && !user.isGM && user.character;
+  });
+
+  const arrUuid = [];
+
+  for (const user of activePlayers) {
+    const actor = user.character;
+    const tokens = actor.getActiveTokens(true);
     if (tokens.length > 0) {
-      tokenDocument = tokens[0].document;
-      uuid = tokenDocument.uuid;
+      arrUuid.push({
+        playerColor: user.color.toString(16).padStart(6, "0"),
+        uuid: tokens[0].document.uuid,
+      });
     }
   }
-  return uuid;
+  return arrUuid;
 }
 export {
   heraldVanguish_getGameIconDamage,
   heraldVanguish_effectWeaknessBroken,
   heraldVanguish_effectOverflowWeaknessBroken,
   heraldVanguish_getElementSelectedIcon,
-  heraldVanguish_getDataUuidSelectedCharacter,
+  heraldVanguish_getCharacterAllUuidActive,
 };
