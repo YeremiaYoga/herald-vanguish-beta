@@ -161,7 +161,9 @@ async function heraldVanguish_getDataVanguishMiddle() {
     let listWeakness = ``;
     if (heraldVanguish_tempAddWeaknessList[tokenUuid]) {
       for (let type of heraldVanguish_tempAddWeaknessList[tokenUuid]) {
-        listWeakness += `${vHelper.heraldVanguish_getGameIconDamage(type)}`;
+        listWeakness += `${vHelper.heraldVanguish_getElementIconNoTooltip(
+          type
+        )}`;
       }
     }
 
@@ -422,7 +424,7 @@ async function heraldVanguish_getDataDialogWeaknessNpc(id) {
     listWeaknessdamage += `
       <div class="heraldVanguish-npcWeaknessCheckboxContainer">
         <input id="heraldVanguish-npcWeaknessCheckbox" class="heraldVanguish-npcWeaknessCheckbox" type="checkbox" name="weakness" value="${type}" ${isChecked}>
-        ${vHelper.heraldVanguish_getGameIconDamage(type)}
+        ${vHelper.heraldVanguish_getElementIconNoTooltip(type)}
         <div class="heraldVanguish-weaknessDamageName">${validTypes[type]}</div>
       </div>
     `;
@@ -492,7 +494,9 @@ async function heraldVanguish_updateWeaknessNpc() {
     let listWeakness = ``;
     if (heraldVanguish_tempAddWeaknessList[tokenUuid]) {
       for (let type of heraldVanguish_tempAddWeaknessList[tokenUuid]) {
-        listWeakness += `${vHelper.heraldVanguish_getGameIconDamage(type)}`;
+        listWeakness += `${vHelper.heraldVanguish_getElementIconNoTooltip(
+          type
+        )}`;
       }
     }
 
@@ -562,7 +566,7 @@ async function heraldVanguish_getDataDialogWeaknessAllNpc() {
     listWeaknessdamage += `
       <div class="heraldVanguish-allNpcweaknessCheckboxContainer">
         <input id="heraldVanguish-allNpcWeaknessCheckbox" type="checkbox" name="weakness" value="${type}">
-        ${vHelper.heraldVanguish_getGameIconDamage(type)}
+        ${vHelper.heraldVanguish_getElementIconNoTooltip(type)}
         <div class="heraldVanguish-weaknessDamageName">${validTypes[type]}</div>
       </div>
     `;
@@ -615,6 +619,9 @@ async function heraldVanguish_applyVanguishNpc() {
 
     setTimeout(async () => {
       await heraldVanguish_addToughnessBar(tokenDocument);
+      for (let type of heraldVanguish_tempAddWeaknessList[id]) {
+        vHelper.heraldVanguish_addEffectElementNpc(id, type);
+      }
     }, 500);
   }
 }
@@ -857,7 +864,9 @@ Hooks.on("preUpdateActor", async (actor, updateData, options, userId) => {
         if (remainToughness < 0) {
           let chatContent = `${actor.name}'s Weakness Break Overflow is now ${
             heraldVanguish.overflowToughness
-          } (${Math.abs(remainToughness)})`;
+          } (${Math.abs(remainToughness)}) (${objDamage.baseDamage} x ${
+            objDamage.elementBoost
+          } x ${objDamage.weaknessBoost}%)`;
           ChatMessage.create({
             content: chatContent,
             speaker: null,

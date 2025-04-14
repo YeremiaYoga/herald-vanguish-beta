@@ -123,7 +123,6 @@ async function heraldVanguish_showDialogSelectCharacter() {
     content: dialogContent,
     buttons: {},
     default: "add",
-    classes: ["herald-vanguish-dialog"],
   }).render(true);
   Hooks.once("renderDialog", async (app) => {
     if (
@@ -144,8 +143,12 @@ async function heraldVanguish_showDialogSelectCharacter() {
       const contentElement = dialogElement.querySelector(".window-content");
 
       if (contentElement) {
-        contentElement.style.background = "none";
-        contentElement.style.backgroundColor = "red";
+        // contentElement.style.background = "none";
+        // contentElement.style.backgroundImage =
+        //   "url('/modules/herald-vanguish-beta/assets/images/testGif.gif')";
+        // contentElement.style.backgroundSize = "cover";
+        // contentElement.style.backgroundRepeat = "no-repeat";
+        // contentElement.style.backgroundPosition = "center";
       }
     }
     await heraldVanguish_getDataListCharacterMiddle();
@@ -166,11 +169,44 @@ async function heraldVanguish_getDataListCharacterMiddle() {
     const classItem = actor.items.find((item) => item.type === "class");
     const actorClass = classItem ? classItem.name : "Unknown";
     let isChecked = ``;
+    let elementCharaterDiv = ``;
     if (heraldVanguish) {
       if (heraldVanguish.elementActive == true) {
         isChecked = `checked`;
+
+        const { element1, element2 } = heraldVanguish;
+        const icon1 = element1
+          ? vHelper.heraldVanguish_getElementIconNoTooltip(element1)
+          : "?";
+        const icon2 = element2
+          ? vHelper.heraldVanguish_getElementIconNoTooltip(element2)
+          : "?";
+
+        const tooltip1 = element1
+          ? `${
+              element1.charAt(0).toUpperCase() + element1.slice(1).toLowerCase()
+            }`
+          : "?";
+        const tooltip2 = element2
+          ? `${
+              element2.charAt(0).toUpperCase() + element2.slice(1).toLowerCase()
+            }`
+          : "?";
+
+        elementCharaterDiv = `
+                <div class="heraldVanguish-selectedElementCharacterContainer">
+                  <div class="heraldVanguish-elementItem">
+          ${icon1}
+          <div class="heraldVanguish-elementTooltip">${tooltip1}</div>
+        </div>
+                  <div class="heraldVanguish-elementItem">
+          ${icon2}
+          <div class="heraldVanguish-elementTooltip">${tooltip2}</div>
+        </div>
+                </div>`;
       }
     }
+
     listActor += `
      <div id="heraldVanguish-dialogCharacterContainer" class="heraldVanguish-dialogCharacterContainer">
       <div id="heraldVanguish-dialogCharacterLeft" class="heraldVanguish-dialogCharacterLeft">
@@ -188,11 +224,11 @@ async function heraldVanguish_getDataListCharacterMiddle() {
           <div id="heraldVanguish-dialogCharacterClass" class="heraldVanguish-dialogCharacterClass">${actorClass}</div>
         </div>
       </div>
-       <div id="heraldVanguish-dialogCharacterRight" class="heraldVanguish-dialogCharacterRight">
-        
+      <div id="heraldVanguish-dialogCharacterRight" class="heraldVanguish-dialogCharacterRight">
+        ${elementCharaterDiv}
       </div>
      
-     </div>
+    </div>
     
     `;
   }
@@ -208,8 +244,34 @@ async function heraldVanguish_getDataListCharacterBottom() {
   );
 
   if (dialogVanguishBotDiv) {
+    let isChecked = "";
+    if (heraldVanguish_listCharacterApplyElement.length > 0) {
+      for (let id of heraldVanguish_listCharacterApplyElement) {
+        let tokenDocument = await fromUuid(id);
+        let heraldVanguish = await tokenDocument.getFlag(
+          "world",
+          "heraldVanguish"
+        );
+        if (heraldVanguish) {
+          if (heraldVanguish.elementSelector == false) {
+            isChecked = "checked";
+            break;
+          }
+        }
+      }
+    }
+
     dialogVanguishBotDiv.innerHTML = `
     <div id="heraldVanguish-dialogListCharacterBottomBot" class="heraldVanguish-dialogListCharacterBottomBot">
+      <div class="heraldVanguish-toggleBlockElementContainer">
+        <div class="heraldVanguish-toggleBlockELementLabel">
+          Block Element Selector
+        </div>
+        <label class="heraldVanguish-toggleBlockElementWrapper">
+          <input type="checkbox" id="heraldVanguish-elementBlockToggle" ${isChecked}/>
+          <span class="heraldVanguish-toggleSliderBlockElement"></span>
+        </label>
+      </div>
       <div id="heraldVanguish-saveListCharacterContainer" class="heraldVanguish-saveListCharacterContainer">
         <button id="heraldVanguish-saveListCharacter" class="heraldVanguish-saveListCharacter">Apply</button>
       </div>
@@ -233,7 +295,15 @@ async function heraldVanguish_applyElementPlayer() {
       let playerId = checkbox.value;
       heraldVanguish_listCharacterApplyElement.push(playerId);
     });
-
+  let elementBlockToggle = document.getElementById(
+    "heraldVanguish-elementBlockToggle"
+  );
+  let elementSelector = true;
+  if (elementBlockToggle.checked) {
+    elementSelector = false;
+  } else {
+    elementSelector = true;
+  }
   for (let id of heraldVanguish_listCharacterApplyElement) {
     let tokenDocument = await fromUuid(id);
     let token = tokenDocument.object;
@@ -241,6 +311,7 @@ async function heraldVanguish_applyElementPlayer() {
 
     await tokenDocument.setFlag("world", "heraldVanguish", {
       elementActive: true,
+      elementSelector: elementSelector,
     });
 
     let heraldVanguish = await tokenDocument.getFlag("world", "heraldVanguish");
@@ -287,7 +358,7 @@ async function heraldVanguish_showDialogElementPlayer() {
   Hooks.once("renderDialog", async (app) => {
     if (app instanceof Dialog && app.title === "Weakness Type") {
       const width = 600;
-      const height = 500;
+      const height = 450;
 
       app.setPosition({
         left: (window.innerWidth - width) / 2,
@@ -350,19 +421,21 @@ async function heraldVanguish_getDataCharacterElementMiddle() {
         </div>
       </div>`;
 
-    let element1Div = document.getElementById(
-      `heraldVanguish-characterElement1Container`
-    );
-    let element2Div = document.getElementById(
-      `heraldVanguish-characterElement2Container`
-    );
+    if (heraldVanguish.elementSelector == true) {
+      let element1Div = document.getElementById(
+        `heraldVanguish-characterElement1Container`
+      );
+      let element2Div = document.getElementById(
+        `heraldVanguish-characterElement2Container`
+      );
 
-    element1Div.addEventListener("click", async (event) => {
-      heraldVanguish_selectElementCharacter("element1");
-    });
-    element2Div.addEventListener("click", async (event) => {
-      heraldVanguish_selectElementCharacter("element2");
-    });
+      element1Div.addEventListener("click", async (event) => {
+        heraldVanguish_selectElementCharacter("element1");
+      });
+      element2Div.addEventListener("click", async (event) => {
+        heraldVanguish_selectElementCharacter("element2");
+      });
+    }
   }
 }
 
@@ -437,7 +510,6 @@ async function heraldVanguish_getDataDialogElementCharacter(
     slashing: "Slashing",
     thunder: "Thunder",
   };
-  console.log(heraldVanguish_groupElementApply);
   let listWeaknessdamage = "";
   for (let type in validTypes) {
     const disabled = heraldVanguish_groupElementApply[type] >= 2;
@@ -448,7 +520,7 @@ async function heraldVanguish_getDataDialogElementCharacter(
       <div class="heraldVanguish-selectedElementContainer" data-name="${type}" style="${style}" ${
       disabled ? 'data-disabled="true"' : ""
     }>
-        ${vHelper.heraldVanguish_getGameIconDamage(type)}
+        ${vHelper.heraldVanguish_getElementIconNoTooltip(type)}
         <div class="heraldVanguish-weaknessDamageName">${validTypes[type]}</div>
       </div>
     `;
@@ -460,6 +532,7 @@ async function heraldVanguish_getDataDialogElementCharacter(
       .querySelectorAll(".heraldVanguish-selectedElementContainer")
       .forEach((el) => {
         el.addEventListener("click", () => {
+          if (el.getAttribute("data-disabled") === "true") return;
           const selectedType = el.getAttribute("data-name");
 
           heraldVanguish_applyElementCharacter(element, selectedType);
@@ -640,29 +713,44 @@ async function heraldVanguish_updateTrackerElementGroup() {
     if (heraldVanguish) {
       const { element1, element2 } = heraldVanguish;
 
+      const icon1 = element1
+        ? vHelper.heraldVanguish_getElementIconNoTooltip(element1)
+        : "?";
+      const icon2 = element2
+        ? vHelper.heraldVanguish_getElementIconNoTooltip(element2)
+        : "?";
+
+      const tooltip1 = element1
+        ? `${
+            element1.charAt(0).toUpperCase() + element1.slice(1).toLowerCase()
+          }`
+        : "?";
+      const tooltip2 = element2
+        ? `${
+            element2.charAt(0).toUpperCase() + element2.slice(1).toLowerCase()
+          }`
+        : "?";
+
       listTrackerElement += `
       <div class="heraldVanguish-trackerElementCharaterContainer">
-        <div class="heraldVanguish-trackerElement1Container" >
-          <div class="heraldVanguish-trackerElement1Item" style="border:2px solid ${
-            actor.playerColor
-          }"> ${vHelper.heraldVanguish_getGameIconDamage(element1)}
-          <div class="heraldVanguish-trackerElementTooltip">${
-            actor.actorName
-          }</div>
+        <div class="heraldVanguish-trackerElement1Container">
+          <div class="heraldVanguish-trackerElement1Item" style="border:2px solid ${actor.playerColor}">
+            ${icon1}
+            <div class="heraldVanguish-trackerElementTooltip"> 
+              ${tooltip1}<br/>
+              <span style="color: #ccc;">${actor.actorName}</span>
+            </div>
           </div>
-         
         </div>
-        <div class="heraldVanguish-trackerElement2Container" >
-         <div class="heraldVanguish-trackerElement2Item" style="border:2px solid ${
-           actor.playerColor
-         }"> ${vHelper.heraldVanguish_getGameIconDamage(element2)}
-         <div class="heraldVanguish-trackerElementTooltip">${
-           actor.actorName
-         }</div>
-         </div>
-     
+        <div class="heraldVanguish-trackerElement2Container">
+          <div class="heraldVanguish-trackerElement2Item" style="border:2px solid ${actor.playerColor}">
+            ${icon2}
+            <div class="heraldVanguish-trackerElementTooltip">
+              ${tooltip2}<br/>
+              <span style="color: #ccc;">${actor.actorName}</span>
+            </div>
+          </div>
         </div>
-         
       </div>
       `;
     }

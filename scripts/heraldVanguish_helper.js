@@ -1,4 +1,34 @@
-function heraldVanguish_getGameIconDamage(type) {
+function heraldVanguish_getElementIconNoTooltip(type) {
+  const basePath = "/systems/dnd5e/icons/svg/damage/";
+  const validTypes = {
+    acid: "Acid",
+    bludgeoning: "Bludgeoning",
+    cold: "Cold",
+    fire: "Fire",
+    force: "Force",
+    lightning: "Lightning",
+    necrotic: "Necrotic",
+    piercing: "Piercing",
+    poison: "Poison",
+    psychic: "Psychic",
+    radiant: "Radiant",
+    slashing: "Slashing",
+    thunder: "Thunder",
+    healing: "Healing",
+    temphp: "Temporary HP",
+  };
+
+  let iconType = validTypes[type] ? type : "";
+  let tooltipText = validTypes[type] || "Unknown";
+
+  return `
+      <div class="heraldVanguish-damageIconContainer">
+        <img src="${basePath}${iconType}.svg" width="20" height="20" style="border:none;">
+      </div>
+    `;
+}
+
+function heraldVanguish_getElementIconTooltip(type) {
   const basePath = "/systems/dnd5e/icons/svg/damage/";
   const validTypes = {
     acid: "Acid",
@@ -310,10 +340,45 @@ async function heraldVanguish_getCharacterAllUuidActive() {
   }
   return arrUuid;
 }
+
+async function heraldVanguish_addEffectElementNpc(uuid, type) {
+  let nameEffect = `Weakness Type Inflict : ${
+    type.charAt(0).toUpperCase() + type.slice(1)
+  }`;
+ 
+  let tokenDocument = await fromUuid(uuid);
+  let token = tokenDocument.object;
+  let actor = token.actor;
+  let existingEffect = actor.effects.find((e) => e.name == nameEffect);
+  if (!existingEffect) {
+    await actor.createEmbeddedDocuments("ActiveEffect", [
+      {
+        name: nameEffect,
+        icon: `/systems/dnd5e/icons/svg/damage/${type}.svg`,
+        changes: [],
+        origin: `Actor.${actor.id}`,
+        disabled: false,
+        transfer: false,
+        duration: {
+          rounds: null,
+          turns: null,
+          specialDuration: ["combatEnd"],
+        },
+        flags: {
+          core: { statusId: nameEffect },
+          dae: { specialDuration: ["combatEnd"] },
+          "temp-effect": true,
+        },
+      },
+    ]);
+  }
+}
 export {
-  heraldVanguish_getGameIconDamage,
+  heraldVanguish_getElementIconNoTooltip,
+  heraldVanguish_getElementIconTooltip,
   heraldVanguish_effectWeaknessBroken,
   heraldVanguish_effectOverflowWeaknessBroken,
   heraldVanguish_getElementSelectedIcon,
   heraldVanguish_getCharacterAllUuidActive,
+  heraldVanguish_addEffectElementNpc,
 };
