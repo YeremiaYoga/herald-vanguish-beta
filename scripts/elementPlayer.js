@@ -17,6 +17,48 @@ let heraldVanguish_groupElementApply = {
   slashing: 0,
   thunder: 0,
 };
+let heraldVanguish_elementSocket;
+
+Hooks.once("socketlib.ready", () => {
+  heraldVanguish_elementSocket = socketlib.registerModule(
+    "herald-vanguish-beta"
+  );
+  heraldVanguish_elementSocket.register("updateElementTracker", async () => {
+    await heraldVanguish_updateTrackerElementGroup();
+    await heraldVanguish_getAllElementInGroup();
+  });
+
+  heraldVanguish_elementSocket.register(
+    "updateActiveElementPlayerSelected",
+    async () => {
+      // await heraldVanguish_updateActiveElementPlayerSelected();
+    }
+  );
+});
+
+async function heraldVanguish_updateActiveElementPlayerSelected() {
+  if (!game.user.isGM) {
+    const user = game.user;
+    const selectedActor = user.character;
+    if (selectedActor) {
+      const tokens = selectedActor.getActiveTokens(true);
+      if (tokens.length > 0) {
+        const tokenDocument = tokens[0].document;
+        const flag = await tokenDocument.getFlag("world", "heraldVanguish");
+        if (flag?.elementActive === true) {
+          heraldVanguish_renderElementPlayerButton();
+        } else {
+          const existingBar = document.getElementById(
+            "heraldVanguish-accessElementContainer"
+          );
+          if (existingBar) {
+            existingBar.remove();
+          }
+        }
+      }
+    }
+  }
+}
 
 async function heraldVanguish_renderElementPlayerButton() {
   const existingBar = document.getElementById(
@@ -195,26 +237,9 @@ async function heraldVanguish_applyElementPlayer() {
 
     let heraldVanguish = await tokenDocument.getFlag("world", "heraldVanguish");
   }
-  heraldVanguish_createJournalElement();
-}
-async function heraldVanguish_createJournalElement() {
-  let journalEntry = game.journal.find((j) => j.name === "Herald Vanguish");
-
-  if (!journalEntry) {
-    journalEntry = await JournalEntry.create({
-      name: "Herald Vanguish",
-      ownership: { default: 3 },
-    });
-
-    if (!journalEntry) {
-      ui.notifications.error("Failed to create journal.");
-      return;
-    } else {
-      ui.notifications.info("Herald Vanguish Active");
-    }
-  } else {
-    ui.notifications.info("Herald Vanguish Already Active");
-  }
+  heraldVanguish_elementSocket.executeForEveryone(
+    "updateActiveElementPlayerSelected"
+  );
 }
 
 async function heraldVanguish_setFlagPlayer() {
@@ -404,9 +429,8 @@ async function heraldVanguish_getDataDialogElementCharacter(
     slashing: "Slashing",
     thunder: "Thunder",
   };
-
+  console.log(heraldVanguish_groupElementApply);
   let listWeaknessdamage = "";
-
   for (let type in validTypes) {
     const disabled = heraldVanguish_groupElementApply[type] >= 2;
     const style = disabled
@@ -431,6 +455,7 @@ async function heraldVanguish_getDataDialogElementCharacter(
           const selectedType = el.getAttribute("data-name");
 
           heraldVanguish_applyElementCharacter(element, selectedType);
+
           dialogElement.close();
         });
       });
@@ -438,6 +463,17 @@ async function heraldVanguish_getDataDialogElementCharacter(
 }
 
 async function heraldVanguish_applyElementCharacter(element, type) {
+  const user = game.user;
+  const selectedActor = user.character;
+  let uuid = ``;
+  let tokenDocument = "";
+  if (selectedActor) {
+    const tokens = selectedActor.getActiveTokens(true);
+    if (tokens.length > 0) {
+      tokenDocument = tokens[0].document;
+      uuid = tokenDocument.uuid;
+    }
+  }
   let elementDiv = ``;
   if (element == "element1") {
     elementDiv = document.getElementById(
@@ -456,6 +492,24 @@ async function heraldVanguish_applyElementCharacter(element, type) {
       element
     );
   }
+
+  let heraldVanguish = await tokenDocument.getFlag("world", "heraldVanguish");
+  if (heraldVanguish?.elementActive === true) {
+    if (element == "element1") {
+      await tokenDocument.setFlag("world", "heraldVanguish", {
+        ...heraldVanguish,
+        element1: type,
+      });
+    }
+    if (element == "element2") {
+      await tokenDocument.setFlag("world", "heraldVanguish", {
+        ...heraldVanguish,
+        element2: type,
+      });
+    }
+  }
+  heraldVanguish_elementSocket.executeForEveryone("updateElementTracker");
+  await heraldVanguish_updateTrackerElementGroup();
 }
 
 async function heraldVanguish_getDataCharacterElementBottom() {
@@ -463,23 +517,23 @@ async function heraldVanguish_getDataCharacterElementBottom() {
     "heraldVanguish-dialogCharacterElementBottom"
   );
 
-  if (characterElementBottomDiv) {
-    characterElementBottomDiv.innerHTML = `
-      <div id="heraldVanguish-dialogCharacterElementBotContainer" class="heraldVanguish-dialogCharacterElementBotContainer">
-        <div id="heraldVanguish-saveElementCharacterContainer" class="heraldVanguish-saveElementCharacterContainer">
-          <button id="heraldVanguish-saveElementCharacter" class="heraldVanguish-saveElementCharacter">Confirm</button>
-        </div>
-      </div>
-    `;
+  // if (characterElementBottomDiv) {
+  //   characterElementBottomDiv.innerHTML = `
+  //     <div id="heraldVanguish-dialogCharacterElementBotContainer" class="heraldVanguish-dialogCharacterElementBotContainer">
+  //       <div id="heraldVanguish-saveElementCharacterContainer" class="heraldVanguish-saveElementCharacterContainer">
+  //         <button id="heraldVanguish-saveElementCharacter" class="heraldVanguish-saveElementCharacter">Confirm</button>
+  //       </div>
+  //     </div>
+  //   `;
 
-    let saveElement = document.getElementById(
-      "heraldVanguish-saveElementCharacter"
-    );
+  //   let saveElement = document.getElementById(
+  //     "heraldVanguish-saveElementCharacter"
+  //   );
 
-    saveElement.addEventListener("click", () => {
-      heraldVanguish_addElementToCharacter();
-    });
-  }
+  //   saveElement.addEventListener("click", () => {
+  //     heraldVanguish_addElementToCharacter();
+  //   });
+  // }
 }
 
 async function heraldVanguish_addElementToCharacter() {
@@ -521,6 +575,7 @@ async function heraldVanguish_addElementToCharacter() {
   heraldVanguish = await tokenDocument.getFlag("world", "heraldVanguish");
   await heraldVanguish_updateTrackerElementGroup();
 }
+
 async function heraldVanguish_getAllElementInGroup() {
   heraldVanguish_listUuidActiveCharacter = [];
   heraldVanguish_listUuidActiveCharacter =

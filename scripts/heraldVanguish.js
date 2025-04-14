@@ -729,6 +729,7 @@ async function heraldVanguish_calculatedToughnessDamage(
   let tokenDocument = await fromUuid(uuid);
   let token = tokenDocument.object;
   let actor = token.actor;
+  let objFinalDamage = {};
   let weaknessBoost = 100;
   let elementBoost = 1;
   let effectModifiers = {
@@ -765,12 +766,17 @@ async function heraldVanguish_calculatedToughnessDamage(
       elementBoost += 1;
     }
   }
-
   let finalToughnessDamage = Math.floor(
     damage * elementBoost * (weaknessBoost * 0.01)
   );
+  objFinalDamage = {
+    baseDamage: damage,
+    elementBoost: elementBoost,
+    weaknessBoost: weaknessBoost,
+    finalDamage: finalToughnessDamage,
+  };
 
-  return finalToughnessDamage;
+  return objFinalDamage;
 }
 
 Hooks.on("preUpdateActor", async (actor, updateData, options, userId) => {
@@ -789,18 +795,22 @@ Hooks.on("preUpdateActor", async (actor, updateData, options, userId) => {
     damageTaken = oldHP - newHP + (oldTempHP - newTempHP);
   }
   let tokenDocument = actor.getActiveTokens().find((t) => t.scene)?.document;
+  let objDamage = {};
   let toughnessDamage = 0;
   let heraldVanguish = await tokenDocument.getFlag("world", "heraldVanguish");
   let newToughness;
   let remainToughness = 0;
   let overflowToughness = heraldVanguish.overflowToughness || 0;
+  console.log(objDamage);
   setTimeout(async () => {
     if (heraldVanguish_attackerUuid) {
-      toughnessDamage = await heraldVanguish_calculatedToughnessDamage(
+      objDamage = await heraldVanguish_calculatedToughnessDamage(
         damageTaken,
         tokenDocument.uuid,
         heraldVanguish_attackerUuid
       );
+      console.log(objDamage);
+      toughnessDamage = objDamage.finalDamage;
     }
     if (heraldVanguish.toughness !== undefined) {
       remainToughness = heraldVanguish.toughness - toughnessDamage;
@@ -823,13 +833,15 @@ Hooks.on("preUpdateActor", async (actor, updateData, options, userId) => {
       heraldVanguish_updateToughnessBar(tokenDocument);
     }
     heraldVanguish = await tokenDocument.getFlag("world", "heraldVanguish");
-    console.log(heraldVanguish);
     setTimeout(async () => {
       if (heraldVanguish?.toughness !== undefined && toughnessDamage > 0) {
         if (heraldVanguish?.toughness > 0) {
+          console.log(objDamage);
           let chatContent = `${actor.name}'s toughness was reduce to ${
             heraldVanguish.toughness
-          } / ${heraldVanguish.maxToughness} (${Math.abs(toughnessDamage)})`;
+          } / ${heraldVanguish.maxToughness} (${Math.abs(toughnessDamage)}) (${
+            objDamage.baseDamage
+          } x ${objDamage.elementBoost} x ${objDamage.weaknessBoost}%)`;
           ChatMessage.create({
             content: chatContent,
             speaker: null,
@@ -1040,12 +1052,12 @@ Hooks.on("updateCombat", (combat, update, options, userId) => {
 
   lastTurn = combat.current.combatantId;
 });
-let heraldVanguishSocket;
+let heraldVanguish_socket;
 
 Hooks.once("socketlib.ready", () => {
-  heraldVanguishSocket = socketlib.registerModule("herald-vanguish-beta");
+  heraldVanguish_socket = socketlib.registerModule("herald-vanguish-beta");
 
-  heraldVanguishSocket.register("sendAttackerUuid", (uuid) => {
+  heraldVanguish_socket.register("sendAttackerUuid", (uuid) => {
     heraldVanguish_attackerUuid = uuid;
   });
 });
@@ -1054,7 +1066,7 @@ Hooks.on("midi-qol.RollComplete", (workflow) => {
   const tokenDocumentUuid = workflow.token?.document?.uuid;
 
   if (tokenDocumentUuid && !game.user.isGM) {
-    heraldVanguishSocket.executeAsGM("sendAttackerUuid", tokenDocumentUuid);
+    heraldVanguish_socket.executeAsGM("sendAttackerUuid", tokenDocumentUuid);
   } else if (tokenDocumentUuid && game.user.isGM) {
     heraldVanguish_attackerUuid = tokenDocumentUuid;
   }
