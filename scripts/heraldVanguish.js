@@ -759,11 +759,17 @@ async function heraldVanguish_calculatedToughnessDamage(
   let targetFlag = await tokenDocument.getFlag("world", "heraldVanguish");
 
   if (targetFlag) {
-    if (targetFlag.listWeakness.includes(attackerFlag.element1)) {
-      elementBoost += 1;
-    }
-    if (targetFlag.listWeakness.includes(attackerFlag.element2)) {
-      elementBoost += 1;
+    if (attackerFlag) {
+      if (attackerFlag.element1) {
+        if (targetFlag.listWeakness.includes(attackerFlag.element1)) {
+          elementBoost += 1;
+        }
+      }
+      if (attackerFlag.element2) {
+        if (targetFlag.listWeakness.includes(attackerFlag.element2)) {
+          elementBoost += 1;
+        }
+      }
     }
   }
   let finalToughnessDamage = Math.floor(

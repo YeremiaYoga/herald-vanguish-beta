@@ -304,6 +304,7 @@ async function heraldVanguish_getCharacterAllUuidActive() {
       arrUuid.push({
         playerColor: user.color.toString(16).padStart(6, "0"),
         uuid: tokens[0].document.uuid,
+        actorName: actor.name,
       });
     }
   }

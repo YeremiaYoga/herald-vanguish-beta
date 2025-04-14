@@ -454,7 +454,7 @@
     width: 100px;
     height: 400px;
     overflow-y: auto;
-    
+
 
 }
 
@@ -466,7 +466,7 @@
     margin-bottom: 10px;
 }
 
-.heraldVanguish-trackerElement1Container {
+.heraldVanguish-trackerElement1Item {
     width: 40px;
     height: 40px;
     display: flex;
@@ -479,7 +479,7 @@
     -o-border-radius: 50%;
 }
 
-.heraldVanguish-trackerElement2Container {
+.heraldVanguish-trackerElement2Item {
     width: 40px;
     height: 40px;
     display: flex;
@@ -490,4 +490,33 @@
     -moz-border-radius: 50%;
     -ms-border-radius: 50%;
     -o-border-radius: 50%;
+}
+
+
+.heraldVanguish-trackerElementTooltip {
+    opacity: 0;
+    position: absolute;
+    right: 20%;
+ 
+    background-color: rgba(0, 0, 0, 0.8);
+    color: #fff;
+    padding: 5px 10px;
+    border-radius: 5px;
+    font-size: 12px;
+    white-space: nowrap;
+    z-index: 10;
+    transition: opacity 0.3s ease-in-out;
+}
+
+
+.heraldVanguish-trackerElement1Item:hover .heraldVanguish-trackerElementTooltip,
+.heraldVanguish-trackerElement2Item:hover .heraldVanguish-trackerElementTooltip {
+
+    opacity: 1;
+}
+
+.heraldVanguish-trackerElement1Container:hover .heraldVanguish-trackerElement1Item .heraldVanguish-trackerElementTooltip,
+.heraldVanguish-trackerElement2Container:hover .heraldVanguish-trackerElement2Item .heraldVanguish-trackerElementTooltip {
+
+    opacity: 1;
 }

@@ -123,6 +123,7 @@ async function heraldVanguish_showDialogSelectCharacter() {
     content: dialogContent,
     buttons: {},
     default: "add",
+    classes: ["herald-vanguish-dialog"],
   }).render(true);
   Hooks.once("renderDialog", async (app) => {
     if (
@@ -139,6 +140,13 @@ async function heraldVanguish_showDialogSelectCharacter() {
         height: height,
         scale: 1.0,
       });
+      const dialogElement = app.element[0];
+      const contentElement = dialogElement.querySelector(".window-content");
+
+      if (contentElement) {
+        contentElement.style.background = "none";
+        contentElement.style.backgroundColor = "red";
+      }
     }
     await heraldVanguish_getDataListCharacterMiddle();
     await heraldVanguish_getDataListCharacterBottom();
@@ -634,16 +642,27 @@ async function heraldVanguish_updateTrackerElementGroup() {
 
       listTrackerElement += `
       <div class="heraldVanguish-trackerElementCharaterContainer">
-        <div class="heraldVanguish-trackerElement1Container" style="border:2px solid ${
-          actor.playerColor
-        }">
-          ${vHelper.heraldVanguish_getGameIconDamage(element1)}
+        <div class="heraldVanguish-trackerElement1Container" >
+          <div class="heraldVanguish-trackerElement1Item" style="border:2px solid ${
+            actor.playerColor
+          }"> ${vHelper.heraldVanguish_getGameIconDamage(element1)}
+          <div class="heraldVanguish-trackerElementTooltip">${
+            actor.actorName
+          }</div>
+          </div>
+         
         </div>
-        <div class="heraldVanguish-trackerElement2Container" style="border:2px solid ${
-          actor.playerColor
-        }">
-          ${vHelper.heraldVanguish_getGameIconDamage(element2)}
+        <div class="heraldVanguish-trackerElement2Container" >
+         <div class="heraldVanguish-trackerElement2Item" style="border:2px solid ${
+           actor.playerColor
+         }"> ${vHelper.heraldVanguish_getGameIconDamage(element2)}
+         <div class="heraldVanguish-trackerElementTooltip">${
+           actor.actorName
+         }</div>
+         </div>
+     
         </div>
+         
       </div>
       `;
     }
