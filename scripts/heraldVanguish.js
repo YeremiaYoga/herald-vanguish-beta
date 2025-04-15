@@ -764,19 +764,29 @@ async function heraldVanguish_calculatedToughnessDamage(
 
   let attackerFlag = await attackerDocument.getFlag("world", "heraldVanguish");
   let targetFlag = await tokenDocument.getFlag("world", "heraldVanguish");
-
-  if (targetFlag) {
-    if (attackerFlag) {
-      if (attackerFlag.element1) {
-        if (targetFlag.listWeakness.includes(attackerFlag.element1)) {
-          elementBoost += 1;
-        }
-      }
-      if (attackerFlag.element2) {
-        if (targetFlag.listWeakness.includes(attackerFlag.element2)) {
-          elementBoost += 1;
-        }
-      }
+  let weaknessSet = new Set(targetFlag?.listWeakness ?? []);
+  let weaknessEffects = actor.effects.filter((e) =>
+    e.name?.startsWith("Weakness Type Inflict : ")
+  );
+  for (let effect of weaknessEffects) {
+    let match = effect.name.match(/Weakness Type Inflict : \s*(\w+)/i);
+    if (match) {
+      weaknessSet.add(match[1].toLowerCase());
+    }
+  }
+  let allWeaknesses = Array.from(weaknessSet);
+  if (attackerFlag) {
+    if (
+      attackerFlag.element1 &&
+      allWeaknesses.includes(attackerFlag.element1.toLowerCase())
+    ) {
+      elementBoost += 1;
+    }
+    if (
+      attackerFlag.element2 &&
+      allWeaknesses.includes(attackerFlag.element2.toLowerCase())
+    ) {
+      elementBoost += 1;
     }
   }
   let finalToughnessDamage = Math.floor(

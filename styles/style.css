@@ -573,7 +573,7 @@
 .heraldVanguish-toggleBlockElementContainer {
     display: flex;
     justify-content: flex-end;
-    display: none;
+    /* display: none; */
 }
 
 .heraldVanguish-toggleBlockELementLabel {

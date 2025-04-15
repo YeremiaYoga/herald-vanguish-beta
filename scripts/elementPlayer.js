@@ -145,7 +145,7 @@ async function heraldVanguish_showDialogSelectCharacter() {
       if (contentElement) {
         // contentElement.style.background = "none";
         // contentElement.style.backgroundImage =
-        //   "url('/modules/herald-vanguish-beta/assets/images/testGif.gif')";
+        //   "url('/modules/herald-vanguish-beta/assets/images/galaxy_bg.jpg')";
         // contentElement.style.backgroundSize = "cover";
         // contentElement.style.backgroundRepeat = "no-repeat";
         // contentElement.style.backgroundPosition = "center";
@@ -367,6 +367,17 @@ async function heraldVanguish_showDialogElementPlayer() {
         height: height,
         scale: 1.0,
       });
+    }
+    const dialogElement = app.element[0];
+    const contentElement = dialogElement.querySelector(".window-content");
+
+    if (contentElement) {
+      contentElement.style.background = "none";
+      contentElement.style.backgroundImage =
+        "url('/modules/herald-vanguish-beta/assets/images/galaxy_bg.jpg')";
+      contentElement.style.backgroundSize = "cover";
+      contentElement.style.backgroundRepeat = "no-repeat";
+      contentElement.style.backgroundPosition = "center";
     }
     await heraldVanguish_getDataCharacterElementMiddle();
     await heraldVanguish_getDataCharacterElementBottom();
