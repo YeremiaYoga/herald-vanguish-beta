@@ -13,7 +13,7 @@ Hooks.on("ready", () => {
         const tokens = selectedActor.getActiveTokens(true);
         if (tokens.length > 0) {
           const tokenDocument = tokens[0].document;
-          const flag = await tokenDocument.getFlag("world", "heraldVanguish");
+          const flag = await selectedActor.getFlag("world", "heraldVanguish");
           if (flag?.elementActive === true) {
             elementPlayer.heraldVanguish_renderElementPlayerButton();
           }

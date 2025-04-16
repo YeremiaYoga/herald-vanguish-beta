@@ -269,19 +269,19 @@
 .heraldVanguish-saveListNpc:hover {
     background-color: #218838;
 }
-/* 
+
 .heraldVanguish-allNpcweaknessCheckboxContainer {
     display: flex;
     gap: 5px;
     align-items: center;
     padding: 5px;
-} */
+}
 
 .heraldVanguish-saveNpcAllWeaknessContainer {
     flex: 1;
     display: flex;
     justify-content: center;
-    display: none;
+  
 }
 
 .heraldVanguish-saveNpcAllWeakness {

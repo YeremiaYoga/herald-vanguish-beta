@@ -520,12 +520,14 @@ async function heraldVanguish_showDialogAddWeaknessAllNpc() {
     </div>
   </div>`;
 
-  new Dialog({
+  const dialog = new Dialog({
     title: `Weakness All Npc`,
     content: dialogContent,
     buttons: {},
     default: "add",
-  }).render(true);
+  });
+
+  dialog.render(true);
   Hooks.once("renderDialog", async (app) => {
     if (app instanceof Dialog && app.title === `Weakness All Npc`) {
       const width = 400;
@@ -538,15 +540,13 @@ async function heraldVanguish_showDialogAddWeaknessAllNpc() {
         height: height,
         scale: 1.0,
       });
-
-
     }
     document
-    .getElementById("heraldVanguish-saveNpcWeaknessContainer")
-    ?.addEventListener("click", async (event) => {
-      await heraldVanguish_addWeaknessAllNpcSelected();
-      dialog.close();
-    });
+      .getElementById("heraldVanguish-saveNpcAllWeaknessContainer")
+      ?.addEventListener("click", async (event) => {
+        await heraldVanguish_addWeaknessAllNpcSelected();
+        // dialog.close();
+      });
     // await heraldVanguish_getDataTopDialogWeaknessAllNpc();
     await heraldVanguish_getDataMiddleDialogWeaknessAllNpc();
   });
@@ -583,8 +583,12 @@ async function heraldVanguish_getDataTopDialogWeaknessAllNpc() {
       </div>
     `;
       dialogWeaknessTop.innerHTML = sliderHtml;
-      const slider = document.getElementById("heraldVanguish-sliderNpcCountWeakness");
-      const sliderValue = document.getElementById("heraldVanguish-sliderNpcWeaknessValue");
+      const slider = document.getElementById(
+        "heraldVanguish-sliderNpcCountWeakness"
+      );
+      const sliderValue = document.getElementById(
+        "heraldVanguish-sliderNpcWeaknessValue"
+      );
       slider.addEventListener("input", () => {
         sliderValue.textContent = slider.value;
       });
@@ -629,7 +633,19 @@ async function heraldVanguish_getDataMiddleDialogWeaknessAllNpc() {
   }
 }
 async function heraldVanguish_addWeaknessAllNpcSelected() {
-  let sliderDiv = document.getElementById("heraldVanguish-sliderNpcCountWeakness");
+  let sliderDiv = document.getElementById(
+    "heraldVanguish-sliderNpcCountWeakness"
+  );
+  let sliderValue = sliderDiv.value;
+
+  document
+    .querySelectorAll(".heraldVanguish-npcWeaknessCheckbox:checked")
+    .forEach((checkbox) => {
+      let weakness = checkbox.value;
+      if (!heraldVanguish_tempAddWeaknessList[id].includes(weakness)) {
+        heraldVanguish_tempAddWeaknessList[id].push(weakness);
+      }
+    });
   for (let id of heraldVanguish_listNpcApplyVanguish) {
     let tokenDocument = await fromUuid(id);
     heraldVanguish_tempAddWeaknessList[id] = [];
