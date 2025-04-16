@@ -513,7 +513,11 @@ async function heraldVanguish_showDialogAddWeaknessAllNpc() {
     </div>
     <div id="heraldVanguish-dialogWeaknessAllNpcMiddle" class="heraldVanguish-dialogWeaknessAllNpcMiddle">
     </div>
-    <div id="heraldVanguish-dialogWeaknessAllNpcBottom" class="heraldVanguish-dialogWeaknessAllNpcBottom"></div>
+    <div id="heraldVanguish-dialogWeaknessAllNpcBottom" class="heraldVanguish-dialogWeaknessAllNpcBottom">
+      <div id="heraldVanguish-saveNpcAllWeaknessContainer" class="heraldVanguish-saveNpcAllWeaknessContainer">
+        <button id="heraldVanguish-saveNpcAllWeakness" class="heraldVanguish-saveNpcAllWeakness">Save</button>
+      </div>
+    </div>
   </div>`;
 
   new Dialog({
@@ -534,13 +538,61 @@ async function heraldVanguish_showDialogAddWeaknessAllNpc() {
         height: height,
         scale: 1.0,
       });
-    }
 
-    await heraldVanguish_getDataDialogWeaknessAllNpc();
+
+    }
+    document
+    .getElementById("heraldVanguish-saveNpcWeaknessContainer")
+    ?.addEventListener("click", async (event) => {
+      await heraldVanguish_addWeaknessAllNpcSelected();
+      dialog.close();
+    });
+    // await heraldVanguish_getDataTopDialogWeaknessAllNpc();
+    await heraldVanguish_getDataMiddleDialogWeaknessAllNpc();
   });
 }
 
-async function heraldVanguish_getDataDialogWeaknessAllNpc() {
+async function heraldVanguish_getDataTopDialogWeaknessAllNpc() {
+  heraldVanguish_listNpcApplyVanguish = [];
+  let dialogWeaknessTop = document.getElementById(
+    "heraldVanguish-dialogWeaknessAllNpcTop"
+  );
+  document
+    .querySelectorAll(".heraldVanguish-dialogNpcCheckbox:checked")
+    .forEach((checkbox) => {
+      let npcId = checkbox.value;
+      heraldVanguish_listNpcApplyVanguish.push(npcId);
+    });
+
+  if (dialogWeaknessTop) {
+    const totalNpc = heraldVanguish_listNpcApplyVanguish.length;
+    if (totalNpc > 0) {
+      const sliderHtml = `
+      <div style="margin-top: 10px;">
+        <label for="heraldVanguish-sliderNpcCountWeakness">Select NPC amount to apply effect: 
+          <span id="heraldVanguish-sliderNpcWeaknessValue">1</span> / ${totalNpc}
+        </label>
+        <input 
+          type="range" 
+          id="heraldVanguish-sliderNpcCountWeakness" 
+          min="1" 
+          max="${totalNpc}" 
+          value="1" 
+          step="1" 
+          style="width: 100%;">
+      </div>
+    `;
+      dialogWeaknessTop.innerHTML = sliderHtml;
+      const slider = document.getElementById("heraldVanguish-sliderNpcCountWeakness");
+      const sliderValue = document.getElementById("heraldVanguish-sliderNpcWeaknessValue");
+      slider.addEventListener("input", () => {
+        sliderValue.textContent = slider.value;
+      });
+    }
+  }
+}
+
+async function heraldVanguish_getDataMiddleDialogWeaknessAllNpc() {
   let dialogWeaknessMiddle = document.getElementById(
     "heraldVanguish-dialogWeaknessAllNpcMiddle"
   );
@@ -574,6 +626,13 @@ async function heraldVanguish_getDataDialogWeaknessAllNpc() {
 
   if (dialogWeaknessMiddle) {
     dialogWeaknessMiddle.innerHTML = listWeaknessdamage;
+  }
+}
+async function heraldVanguish_addWeaknessAllNpcSelected() {
+  let sliderDiv = document.getElementById("heraldVanguish-sliderNpcCountWeakness");
+  for (let id of heraldVanguish_listNpcApplyVanguish) {
+    let tokenDocument = await fromUuid(id);
+    heraldVanguish_tempAddWeaknessList[id] = [];
   }
 }
 
@@ -733,6 +792,8 @@ async function heraldVanguish_calculatedToughnessDamage(
   attackerUuid
 ) {
   let attackerDocument = await fromUuid(attackerUuid);
+  let attakerToken = attackerDocument.object;
+  let attackerActor = attakerToken.actor;
   let tokenDocument = await fromUuid(uuid);
   let token = tokenDocument.object;
   let actor = token.actor;
@@ -762,7 +823,7 @@ async function heraldVanguish_calculatedToughnessDamage(
     }
   }
 
-  let attackerFlag = await attackerDocument.getFlag("world", "heraldVanguish");
+  let attackerFlag = await attackerActor.getFlag("world", "heraldVanguish");
   let targetFlag = await tokenDocument.getFlag("world", "heraldVanguish");
   let weaknessSet = new Set(targetFlag?.listWeakness ?? []);
   let weaknessEffects = actor.effects.filter((e) =>

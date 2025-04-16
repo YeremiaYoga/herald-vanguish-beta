@@ -41,19 +41,15 @@ async function heraldVanguish_updateActiveElementPlayerSelected() {
     const user = game.user;
     const selectedActor = user.character;
     if (selectedActor) {
-      const tokens = selectedActor.getActiveTokens(true);
-      if (tokens.length > 0) {
-        const tokenDocument = tokens[0].document;
-        const flag = await tokenDocument.getFlag("world", "heraldVanguish");
-        if (flag?.elementActive === true) {
-          heraldVanguish_renderElementPlayerButton();
-        } else {
-          const existingBar = document.getElementById(
-            "heraldVanguish-accessElementContainer"
-          );
-          if (existingBar) {
-            existingBar.remove();
-          }
+      const flag = await selectedActor.getFlag("world", "heraldVanguish");
+      if (flag?.elementActive === true) {
+        heraldVanguish_renderElementPlayerButton();
+      } else {
+        const existingBar = document.getElementById(
+          "heraldVanguish-accessElementContainer"
+        );
+        if (existingBar) {
+          existingBar.remove();
         }
       }
     }
@@ -105,6 +101,15 @@ async function heraldVanguish_getDataAllPlayerScene() {
   heraldVanguish_allPlayerScene = game.scenes.viewed.tokens
     .filter((t) => t.actor.type === "character")
     .map((t) => t.actor);
+
+  for (let actor of heraldVanguish_allPlayerScene) {
+    let token = actor.getActiveTokens()[0];
+    let tokenUuid = token?.document?.uuid;
+    let tokenDocument = await fromUuid(tokenUuid);
+    await tokenDocument.unsetFlag("world", "heraldVanguish");
+
+    console.log(await tokenDocument.getFlag("world", "heraldVanguish"));
+  }
   await heraldVanguish_showDialogSelectCharacter();
 }
 
@@ -165,7 +170,7 @@ async function heraldVanguish_getDataListCharacterMiddle() {
     let token = actor.getActiveTokens()[0];
     let tokenUuid = token?.document?.uuid;
     let tokenDocument = await fromUuid(tokenUuid);
-    let heraldVanguish = await tokenDocument.getFlag("world", "heraldVanguish");
+    let heraldVanguish = await actor.getFlag("world", "heraldVanguish");
     const classItem = actor.items.find((item) => item.type === "class");
     const actorClass = classItem ? classItem.name : "Unknown";
     let isChecked = ``;
@@ -248,10 +253,9 @@ async function heraldVanguish_getDataListCharacterBottom() {
     if (heraldVanguish_listCharacterApplyElement.length > 0) {
       for (let id of heraldVanguish_listCharacterApplyElement) {
         let tokenDocument = await fromUuid(id);
-        let heraldVanguish = await tokenDocument.getFlag(
-          "world",
-          "heraldVanguish"
-        );
+        let token = tokenDocument.object;
+        let actor = token.actor;
+        let heraldVanguish = await actor.getFlag("world", "heraldVanguish");
         if (heraldVanguish) {
           if (heraldVanguish.elementSelector == false) {
             isChecked = "checked";
@@ -309,16 +313,15 @@ async function heraldVanguish_applyElementPlayer() {
     let token = tokenDocument.object;
     let actor = token.actor;
 
-    await tokenDocument.setFlag("world", "heraldVanguish", {
+    await actor.setFlag("world", "heraldVanguish", {
       elementActive: true,
       elementSelector: elementSelector,
     });
-
-    let heraldVanguish = await tokenDocument.getFlag("world", "heraldVanguish");
   }
   heraldVanguish_elementSocket.executeForEveryone(
     "updateActiveElementPlayerSelected"
   );
+  await heraldVanguish_getDataListCharacterMiddle();
 }
 
 async function heraldVanguish_setFlagPlayer() {
@@ -327,15 +330,16 @@ async function heraldVanguish_setFlagPlayer() {
     let tokenUuid = token?.document?.uuid;
     let tokenDocument = await fromUuid(tokenUuid);
 
-    let heraldVanguish = await tokenDocument.getFlag("world", "heraldVanguish");
+    let heraldVanguish = await actor.getFlag("world", "heraldVanguish");
     if (heraldVanguish) {
       if (heraldVanguish.elementActive) {
-        await tokenDocument.setFlag("world", "heraldVanguish", {
+        await actor.setFlag("world", "heraldVanguish", {
           ...heraldVanguish,
           elementActive: false,
         });
       }
     }
+    heraldVanguish = await actor.getFlag("world", "heraldVanguish");
   }
 }
 
@@ -400,7 +404,7 @@ async function heraldVanguish_getDataCharacterElementMiddle() {
   );
 
   if (characterElementMiddleDiv) {
-    let heraldVanguish = await tokenDocument.getFlag("world", "heraldVanguish");
+    let heraldVanguish = await selectedActor.getFlag("world", "heraldVanguish");
     let element1Icon = ``;
     let element2Icon = ``;
     if (heraldVanguish) {
@@ -556,11 +560,11 @@ async function heraldVanguish_getDataDialogElementCharacter(
 
 async function heraldVanguish_applyElementCharacter(element, type) {
   const user = game.user;
-  const selectedActor = user.character;
+  const actor = user.character;
   let uuid = ``;
   let tokenDocument = "";
-  if (selectedActor) {
-    const tokens = selectedActor.getActiveTokens(true);
+  if (actor) {
+    const tokens = actor.getActiveTokens(true);
     if (tokens.length > 0) {
       tokenDocument = tokens[0].document;
       uuid = tokenDocument.uuid;
@@ -585,16 +589,16 @@ async function heraldVanguish_applyElementCharacter(element, type) {
     );
   }
 
-  let heraldVanguish = await tokenDocument.getFlag("world", "heraldVanguish");
+  let heraldVanguish = await actor.getFlag("world", "heraldVanguish");
   if (heraldVanguish?.elementActive === true) {
     if (element == "element1") {
-      await tokenDocument.setFlag("world", "heraldVanguish", {
+      await actor.setFlag("world", "heraldVanguish", {
         ...heraldVanguish,
         element1: type,
       });
     }
     if (element == "element2") {
-      await tokenDocument.setFlag("world", "heraldVanguish", {
+      await actor.setFlag("world", "heraldVanguish", {
         ...heraldVanguish,
         element2: type,
       });
@@ -628,45 +632,45 @@ async function heraldVanguish_getDataCharacterElementBottom() {
   // }
 }
 
-async function heraldVanguish_addElementToCharacter() {
-  const user = game.user;
-  const selectedActor = user.character;
-  let uuid = ``;
-  let tokenDocument = "";
-  if (selectedActor) {
-    const tokens = selectedActor.getActiveTokens(true);
-    if (tokens.length > 0) {
-      tokenDocument = tokens[0].document;
-      uuid = tokenDocument.uuid;
-    }
-  }
-  let element1 = "";
-  let element2 = "";
+// async function heraldVanguish_addElementToCharacter() {
+//   const user = game.user;
+//   const selectedActor = user.character;
+//   let uuid = ``;
+//   let tokenDocument = "";
+//   if (selectedActor) {
+//     const tokens = selectedActor.getActiveTokens(true);
+//     if (tokens.length > 0) {
+//       tokenDocument = tokens[0].document;
+//       uuid = tokenDocument.uuid;
+//     }
+//   }
+//   let element1 = "";
+//   let element2 = "";
 
-  const element1Div = document.getElementById(
-    "heraldVanguish-elementIconContainer-element1"
-  );
-  if (element1Div) {
-    element1 = element1Div.getAttribute("data-name") || "";
-  }
+//   const element1Div = document.getElementById(
+//     "heraldVanguish-elementIconContainer-element1"
+//   );
+//   if (element1Div) {
+//     element1 = element1Div.getAttribute("data-name") || "";
+//   }
 
-  const element2Div = document.getElementById(
-    "heraldVanguish-elementIconContainer-element2"
-  );
-  if (element2Div) {
-    element2 = element2Div.getAttribute("data-name") || "";
-  }
-  let heraldVanguish = await tokenDocument.getFlag("world", "heraldVanguish");
-  if (heraldVanguish?.elementActive === true) {
-    await tokenDocument.setFlag("world", "heraldVanguish", {
-      ...heraldVanguish,
-      element1: element1,
-      element2: element2,
-    });
-  }
-  heraldVanguish = await tokenDocument.getFlag("world", "heraldVanguish");
-  await heraldVanguish_updateTrackerElementGroup();
-}
+//   const element2Div = document.getElementById(
+//     "heraldVanguish-elementIconContainer-element2"
+//   );
+//   if (element2Div) {
+//     element2 = element2Div.getAttribute("data-name") || "";
+//   }
+//   let heraldVanguish = await selectedActor.getFlag("world", "heraldVanguish");
+//   if (heraldVanguish?.elementActive === true) {
+//     await actor.setFlag("world", "heraldVanguish", {
+//       ...heraldVanguish,
+//       element1: element1,
+//       element2: element2,
+//     });
+//   }
+//   heraldVanguish = await selectedActor.getFlag("world", "heraldVanguish");
+//   await heraldVanguish_updateTrackerElementGroup();
+// }
 
 async function heraldVanguish_getAllElementInGroup() {
   heraldVanguish_listUuidActiveCharacter = [];
@@ -675,9 +679,11 @@ async function heraldVanguish_getAllElementInGroup() {
   for (let key in heraldVanguish_groupElementApply) {
     heraldVanguish_groupElementApply[key] = 0;
   }
-  for (let actor of heraldVanguish_listUuidActiveCharacter) {
-    let tokenDocument = await fromUuid(actor.uuid);
-    let heraldVanguish = await tokenDocument.getFlag("world", "heraldVanguish");
+  for (let data of heraldVanguish_listUuidActiveCharacter) {
+    let tokenDocument = await fromUuid(data.uuid);
+    let token = tokenDocument.object;
+    let actor = token.actor;
+    let heraldVanguish = await actor.getFlag("world", "heraldVanguish");
     if (heraldVanguish) {
       const { element1, element2 } = heraldVanguish;
 
@@ -715,12 +721,14 @@ async function heraldVanguish_updateTrackerElementGroup() {
     "heraldVanguish-listAnotherCharacterContainer"
   );
   let listTrackerElement = ``;
-  for (let actor of heraldVanguish_listUuidActiveCharacter) {
-    let tokenDocument = await fromUuid(actor.uuid);
+  for (let data of heraldVanguish_listUuidActiveCharacter) {
+    let tokenDocument = await fromUuid(data.uuid);
+    let token = tokenDocument.object;
+    let actor = token.actor;
     // if (userTokenDocument == tokenDocument) {
     //   continue;
     // }
-    let heraldVanguish = await tokenDocument.getFlag("world", "heraldVanguish");
+    let heraldVanguish = await actor.getFlag("world", "heraldVanguish");
     if (heraldVanguish) {
       const { element1, element2 } = heraldVanguish;
 
@@ -745,20 +753,20 @@ async function heraldVanguish_updateTrackerElementGroup() {
       listTrackerElement += `
       <div class="heraldVanguish-trackerElementCharaterContainer">
         <div class="heraldVanguish-trackerElement1Container">
-          <div class="heraldVanguish-trackerElement1Item" style="border:2px solid ${actor.playerColor}">
+          <div class="heraldVanguish-trackerElement1Item" style="border:2px solid ${data.playerColor}">
             ${icon1}
             <div class="heraldVanguish-trackerElementTooltip"> 
               ${tooltip1}<br/>
-              <span style="color: #ccc;">${actor.actorName}</span>
+              <span style="color: #ccc;">${data.actorName}</span>
             </div>
           </div>
         </div>
         <div class="heraldVanguish-trackerElement2Container">
-          <div class="heraldVanguish-trackerElement2Item" style="border:2px solid ${actor.playerColor}">
+          <div class="heraldVanguish-trackerElement2Item" style="border:2px solid ${data.playerColor}">
             ${icon2}
             <div class="heraldVanguish-trackerElementTooltip">
               ${tooltip2}<br/>
-              <span style="color: #ccc;">${actor.actorName}</span>
+              <span style="color: #ccc;">${data.actorName}</span>
             </div>
           </div>
         </div>

@@ -345,7 +345,7 @@ async function heraldVanguish_addEffectElementNpc(uuid, type) {
   let nameEffect = `Weakness Type Inflict : ${
     type.charAt(0).toUpperCase() + type.slice(1)
   }`;
- 
+
   let tokenDocument = await fromUuid(uuid);
   let token = tokenDocument.object;
   let actor = token.actor;
@@ -366,13 +366,14 @@ async function heraldVanguish_addEffectElementNpc(uuid, type) {
         },
         flags: {
           core: { statusId: nameEffect },
-          dae: { specialDuration: ["combatEnd"] },
+          dae: { specialDuration: ["combatEnd"], showIcon: true },
           "temp-effect": true,
         },
       },
     ]);
   }
 }
+
 export {
   heraldVanguish_getElementIconNoTooltip,
   heraldVanguish_getElementIconTooltip,
