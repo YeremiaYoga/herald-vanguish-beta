@@ -545,9 +545,9 @@ async function heraldVanguish_showDialogAddWeaknessAllNpc() {
       .getElementById("heraldVanguish-saveNpcAllWeaknessContainer")
       ?.addEventListener("click", async (event) => {
         await heraldVanguish_addWeaknessAllNpcSelected();
-        // dialog.close();
+        dialog.close();
       });
-    // await heraldVanguish_getDataTopDialogWeaknessAllNpc();
+    await heraldVanguish_getDataTopDialogWeaknessAllNpc();
     await heraldVanguish_getDataMiddleDialogWeaknessAllNpc();
   });
 }
@@ -621,7 +621,7 @@ async function heraldVanguish_getDataMiddleDialogWeaknessAllNpc() {
   for (let type in validTypes) {
     listWeaknessdamage += `
       <div class="heraldVanguish-allNpcweaknessCheckboxContainer">
-        <input id="heraldVanguish-allNpcWeaknessCheckbox" type="checkbox" name="weakness" value="${type}">
+        <input id="heraldVanguish-allNpcWeaknessCheckbox" class="heraldVanguish-allNpcWeaknessCheckbox" type="checkbox" name="weakness" value="${type}">
         ${vHelper.heraldVanguish_getElementIconNoTooltip(type)}
         <div class="heraldVanguish-weaknessDamageName">${validTypes[type]}</div>
       </div>
@@ -637,19 +637,113 @@ async function heraldVanguish_addWeaknessAllNpcSelected() {
     "heraldVanguish-sliderNpcCountWeakness"
   );
   let sliderValue = sliderDiv.value;
-
-  document
-    .querySelectorAll(".heraldVanguish-npcWeaknessCheckbox:checked")
-    .forEach((checkbox) => {
-      let weakness = checkbox.value;
-      if (!heraldVanguish_tempAddWeaknessList[id].includes(weakness)) {
-        heraldVanguish_tempAddWeaknessList[id].push(weakness);
+  let sliderMax = sliderDiv.max;
+  const validTypes = [
+    "acid",
+    "bludgeoning",
+    "cold",
+    "fire",
+    "force",
+    "lightning",
+    "necrotic",
+    "piercing",
+    "poison",
+    "psychic",
+    "radiant",
+    "slashing",
+    "thunder",
+  ];
+  if (sliderValue == sliderMax) {
+    for (let id of heraldVanguish_listNpcApplyVanguish) {
+      let maxWeaknessValueDiv = document.getElementById(
+        `heraldVanguish-maxWeaknessValue-${id}`
+      );
+      let maxWeakness = 5;
+      if (maxWeaknessValueDiv) {
+        maxWeakness = Number(maxWeaknessValueDiv.value);
       }
-    });
-  for (let id of heraldVanguish_listNpcApplyVanguish) {
-    let tokenDocument = await fromUuid(id);
-    heraldVanguish_tempAddWeaknessList[id] = [];
+      heraldVanguish_tempAddWeaknessList[id] = [];
+      document
+        .querySelectorAll(".heraldVanguish-allNpcWeaknessCheckbox:checked")
+        .forEach((checkbox) => {
+          let weakness = checkbox.value;
+          if (!heraldVanguish_tempAddWeaknessList[id].includes(weakness)) {
+            heraldVanguish_tempAddWeaknessList[id].push(weakness);
+          }
+        });
+      while (heraldVanguish_tempAddWeaknessList[id].length < maxWeakness) {
+        let random = validTypes[Math.floor(Math.random() * validTypes.length)];
+        if (!heraldVanguish_tempAddWeaknessList[id].includes(random)) {
+          heraldVanguish_tempAddWeaknessList[id].push(random);
+        }
+      }
+    }
+  } else {
+    let selectedWeaknesses = [];
+    document
+      .querySelectorAll(".heraldVanguish-allNpcWeaknessCheckbox:checked")
+      .forEach((checkbox) => {
+        let weakness = checkbox.value;
+        console.log(weakness);
+        selectedWeaknesses.push(weakness);
+      });
+    if (selectedWeaknesses.length === 0) {
+      selectedWeaknesses = [...validTypes];
+    }
+    let npcIds = [...heraldVanguish_listNpcApplyVanguish];
+    let npcWeaknessMap = {};
+    let maxWeaknessMap = {};
+
+    for (let npcId of npcIds) {
+      npcWeaknessMap[npcId] = [];
+
+      let maxWeaknessValueDiv = document.getElementById(
+        `heraldVanguish-maxWeaknessValue-${npcId}`
+      );
+      let maxWeakness = 5;
+      if (maxWeaknessValueDiv) {
+        maxWeakness = Number(maxWeaknessValueDiv.value);
+      }
+      maxWeaknessMap[npcId] = maxWeakness;
+    }
+
+    for (let weakness of selectedWeaknesses) {
+      let assigned = 0;
+      let attemptNpcs = [...npcIds];
+
+      while (assigned < sliderValue && attemptNpcs.length > 0) {
+        let index = Math.floor(Math.random() * attemptNpcs.length);
+        let npcId = attemptNpcs.splice(index, 1)[0];
+        let npcWeaknesses = npcWeaknessMap[npcId];
+        if (
+          npcWeaknesses.length < maxWeaknessMap[npcId] &&
+          !npcWeaknesses.includes(weakness)
+        ) {
+          npcWeaknesses.push(weakness);
+          assigned++;
+        }
+      }
+
+      if (assigned < sliderValue) {
+        console.warn(
+          `Tidak bisa menetapkan weakness '${weakness}' sebanyak ${sliderValue} kali.`
+        );
+      }
+    }
+
+    for (let npcId of npcIds) {
+      let npcWeaknesses = npcWeaknessMap[npcId];
+      let maxWeakness = maxWeaknessMap[npcId];
+      while (npcWeaknesses.length < maxWeakness) {
+        let random = validTypes[Math.floor(Math.random() * validTypes.length)];
+        if (!npcWeaknesses.includes(random)) {
+          npcWeaknesses.push(random);
+        }
+      }
+      heraldVanguish_tempAddWeaknessList[npcId] = npcWeaknesses;
+    }
   }
+  await heraldVanguish_updateWeaknessNpc();
 }
 
 async function heraldVanguish_applyVanguishNpc() {
