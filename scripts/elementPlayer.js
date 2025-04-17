@@ -405,8 +405,8 @@ async function heraldVanguish_getDataCharacterElementMiddle() {
 
   if (characterElementMiddleDiv) {
     let heraldVanguish = await selectedActor.getFlag("world", "heraldVanguish");
-    let element1Icon = ``;
-    let element2Icon = ``;
+    let element1Icon = `Click to Select`;
+    let element2Icon = `Click to Select`;
     if (heraldVanguish) {
       if (heraldVanguish.element1) {
         element1Icon = vHelper.heraldVanguish_getElementSelectedIcon(

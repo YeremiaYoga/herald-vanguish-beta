@@ -28,7 +28,7 @@ function heraldVanguish_getElementIconNoTooltip(type) {
     `;
 }
 
-function heraldVanguish_getElementIconTooltip(type) {
+function heraldVanguish_getElementIconGold(type) {
   const basePath = "/systems/dnd5e/icons/svg/damage/";
   const validTypes = {
     acid: "Acid",
@@ -376,7 +376,7 @@ async function heraldVanguish_addEffectElementNpc(uuid, type) {
 
 export {
   heraldVanguish_getElementIconNoTooltip,
-  heraldVanguish_getElementIconTooltip,
+  heraldVanguish_getElementIconGold,
   heraldVanguish_effectWeaknessBroken,
   heraldVanguish_effectOverflowWeaknessBroken,
   heraldVanguish_getElementSelectedIcon,
