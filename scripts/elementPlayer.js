@@ -498,6 +498,7 @@ async function heraldVanguish_selectElementCharacter(element) {
     );
   });
 }
+
 async function heraldVanguish_getDataDialogElementCharacter(
   element,
   id,

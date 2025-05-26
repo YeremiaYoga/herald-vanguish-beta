@@ -1,29 +1,25 @@
-function heraldVanguish_getElementIconNoTooltip(type) {
-  const basePath = "/systems/dnd5e/icons/svg/damage/";
+function heraldVanguish_getPersonalityIconNoTooltip(type) {
+  const basePath = "/modules/herald-vanguish-beta/assets/12icon/nodebuff/";
   const validTypes = {
-    acid: "Acid",
-    bludgeoning: "Bludgeoning",
-    cold: "Cold",
-    fire: "Fire",
-    force: "Force",
-    lightning: "Lightning",
-    necrotic: "Necrotic",
-    piercing: "Piercing",
-    poison: "Poison",
-    psychic: "Psychic",
-    radiant: "Radiant",
-    slashing: "Slashing",
-    thunder: "Thunder",
-    healing: "Healing",
-    temphp: "Temporary HP",
+    innocent: "ego_innocent",
+    sage: "self_sage",
+    explorer: "soul_explorer",
+    outlaw: "soul_outlaw",
+    magician: "self_magician",
+    hero: "ego_hero",
+    lover: "soul_love",
+    jester: "self_jester",
+    everyman: "ego_everyman",
+    caregiver: "ego_caregiver",
+    ruler: "self_ruler",
+    creator: "soul_creator",
   };
 
-  let iconType = validTypes[type] ? type : "";
-  let tooltipText = validTypes[type] || "Unknown";
+  const iconFile = validTypes[type] ?? "";
 
   return `
       <div class="heraldVanguish-damageIconContainer">
-        <img src="${basePath}${iconType}.svg" width="20" height="20" style="border:none;">
+        <img src="${basePath}${iconFile}.png" width="20" height="20" style="border:none;">
       </div>
     `;
 }
@@ -291,31 +287,28 @@ async function heraldVanguish_effectOverflowWeaknessBroken(
   }
 }
 
-function heraldVanguish_getElementSelectedIcon(type, element) {
-  const basePath = "/systems/dnd5e/icons/svg/damage/";
+function heraldVanguish_getPersonalitySelectedIcon(type, personality) {
+  const basePath = "/modules/herald-vanguish-beta/assets/12icon/nodebuff/";
   const validTypes = {
-    acid: "Acid",
-    bludgeoning: "Bludgeoning",
-    cold: "Cold",
-    fire: "Fire",
-    force: "Force",
-    lightning: "Lightning",
-    necrotic: "Necrotic",
-    piercing: "Piercing",
-    poison: "Poison",
-    psychic: "Psychic",
-    radiant: "Radiant",
-    slashing: "Slashing",
-    thunder: "Thunder",
-    healing: "Healing",
-    temphp: "Temporary HP",
+    innocent: "ego_innocent",
+    sage: "self_sage",
+    explorer: "soul_explorer",
+    outlaw: "soul_outlaw",
+    magician: "self_magician",
+    hero: "ego_hero",
+    lover: "soul_love",
+    jester: "self_jester",
+    everyman: "ego_everyman",
+    caregiver: "ego_caregiver",
+    ruler: "self_ruler",
+    creator: "soul_creator",
   };
 
-  let iconType = validTypes[type] ? type : "";
+   const iconFile = validTypes[type] ?? "";
 
   return `
-      <div id="heraldVanguish-elementIconContainer-${element}" class="heraldVanguish-elementIconContainer" data-name="${type}">
-        <img src="${basePath}${iconType}.svg" width="100" height="100" style="border:none;">
+      <div id="heraldVanguish-personalityIconContainer-${personality}" class="heraldVanguish-personalityIconContainer" data-name="${type}">
+        <img src="${basePath}${iconFile}.png" width="100" height="100" style="border:none;">
       </div>
     `;
 }
@@ -375,11 +368,11 @@ async function heraldVanguish_addEffectElementNpc(uuid, type) {
 }
 
 export {
-  heraldVanguish_getElementIconNoTooltip,
+  heraldVanguish_getPersonalityIconNoTooltip,
   heraldVanguish_getElementIconGold,
   heraldVanguish_effectWeaknessBroken,
   heraldVanguish_effectOverflowWeaknessBroken,
-  heraldVanguish_getElementSelectedIcon,
+  heraldVanguish_getPersonalitySelectedIcon,
   heraldVanguish_getCharacterAllUuidActive,
   heraldVanguish_addEffectElementNpc,
 };

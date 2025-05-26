@@ -1,11 +1,13 @@
 import * as herald_vanguish from "./heraldVanguish.js";
 import * as elementPlayer from "./elementPlayer.js";
+import * as personalityPlayer from "./personalityPlayer.js";
 
 Hooks.on("ready", () => {
   setTimeout(async () => {
     if (game.user.isGM) {
       herald_vanguish.heraldVanguish_renderAccessButton();
-      elementPlayer.heraldVanguish_renderElementPlayerButton();
+      // elementPlayer.heraldVanguish_renderElementPlayerButton();
+      personalityPlayer.heraldVanguish_renderPersonalityPlayerButton();
     } else {
       const user = game.user;
       const selectedActor = user.character;
@@ -14,8 +16,9 @@ Hooks.on("ready", () => {
         if (tokens.length > 0) {
           const tokenDocument = tokens[0].document;
           const flag = await selectedActor.getFlag("world", "heraldVanguish");
-          if (flag?.elementActive === true) {
-            elementPlayer.heraldVanguish_renderElementPlayerButton();
+          if (flag?.personalityActive === true) {
+            // elementPlayer.heraldVanguish_renderElementPlayerButton();
+            personalityPlayer.heraldVanguish_renderPersonalityPlayerButton();
           }
         }
       }

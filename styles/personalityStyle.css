@@ -1,0 +1,351 @@
+.heraldVanguish-accessPersonalityContainer {
+    position: fixed;
+    bottom: 6vh;
+    left: 72vw;
+    transform: translateX(-50%);
+    z-index: 5;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.heraldVanguish-personalityPlayerButton {
+    background-color: rgba(0, 0, 0, 0.7);
+    width: 30px;
+    height: 30px;
+    color: white;
+    font-size: 16px;
+    border: none;
+    cursor: pointer;
+    border-radius: 5px;
+    margin-bottom: 5px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transition: background-color 0.3s ease;
+    -webkit-border-radius: 5px;
+    -moz-border-radius: 5px;
+    -ms-border-radius: 5px;
+    -o-border-radius: 5px;
+}
+
+
+.heraldVanguish-dialogListCharacterMiddle {
+    padding-bottom: 20%;
+}
+
+.heraldVanguish-dialogCharacterContainer {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 5px;
+    border-bottom: 1px solid #ccc;
+}
+
+.heraldVanguish-dialogCharacterMiddleTop {
+    display: flex;
+    gap: 5px;
+    align-items: center;
+}
+
+.heraldVanguish-dialogCharacterName {
+    font-weight: bold;
+    font-size: 16px;
+}
+
+.heraldVanguish-dialogCharacterMiddleMid {
+    display: flex;
+    gap: 5px;
+    align-items: center;
+}
+
+.heraldVanguish-dialogCharacterRight {
+    display: flex;
+    margin-left: auto;
+    gap: 5px;
+}
+
+.heraldVanguish-selectedPersonalityCharacterContainer {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 10px;
+}
+
+.heraldVanguish-personalityItem {
+    position: relative;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: 50%;
+    border: 2px solid black;
+  }
+  
+  .heraldVanguish-personalityTooltip {
+    opacity: 0;
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(0, 0, 0, 0.8);
+    color: white;
+    padding: 4px 8px;
+    font-size: 12px;
+    border-radius: 4px;
+    white-space: nowrap;
+    transition: opacity 0.3s ease;
+    pointer-events: none;
+    z-index: 10;
+  }
+  
+  .heraldVanguish-personalityItem:hover .heraldVanguish-personalityTooltip {
+    opacity: 1;
+  }
+
+.heraldVanguish-dialogListCharacterBottom {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    padding: 10px;
+    z-index: 14;
+}
+
+.heraldVanguish-dialogListNpcBottomTop {
+    display: flex;
+    justify-content: flex-end;
+    gap: 5px;
+    padding-bottom: 5px;
+}
+
+.heraldVanguish-saveListCharacterContainer {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+}
+
+.heraldVanguish-saveListCharacter {
+    padding: 2px 5px;
+    background-color: #28a745;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 12px;
+}
+
+.heraldVanguish-personalityCharacterContainer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+}
+
+.heraldVanguish-selectCharacterPersonalityContainer {
+    display: flex;
+    gap: 15px;
+    margin-left: 10%;
+}
+
+.heraldVanguish-characterPersonality1Container {
+    width: 150px;
+    height: 150px;
+    border-radius: 50%;
+    border: 2px solid black;
+    -webkit-border-radius: 50%;
+    -moz-border-radius: 50%;
+    -ms-border-radius: 50%;
+    -o-border-radius: 50%;
+    cursor: pointer;
+    align-items: center;
+    display: flex;
+    justify-content: center;
+    font-size: 16px;
+}
+
+.heraldVanguish-characterPersonality2Container {
+    width: 150px;
+    height: 150px;
+    border-radius: 50%;
+    border: 2px solid black;
+    -webkit-border-radius: 50%;
+    -moz-border-radius: 50%;
+    -ms-border-radius: 50%;
+    -o-border-radius: 50%;
+    cursor: pointer;
+    align-items: center;
+    display: flex;
+    justify-content: center;
+    font-size: 16px;
+}
+
+.heraldVanguish-selectedPersonalityContainer {
+    display: flex;
+    gap: 5px;
+    align-items: center;
+    padding: 5px;
+    cursor: pointer;
+}
+
+
+.heraldVanguish-dialogCharacterPersonalityBotContainer {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    padding: 10px;
+    z-index: 14;
+}
+
+.heraldVanguish-savePersonalityCharacterContainer {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+}
+
+.heraldVanguish-savePersonalityCharacter {
+    padding: 2px 5px;
+    color: black;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 12px;
+}
+
+.heraldVanguish-listAnotherCharacterContainer {
+    width: 100px;
+    height: 400px;
+    overflow-y: auto;
+
+
+}
+
+.heraldVanguish-trackerPersonalityCharaterContainer {
+    margin-top: 10px;
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 10px;
+}
+
+.heraldVanguish-trackerPersonality1Item {
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    -webkit-border-radius: 50%;
+    -moz-border-radius: 50%;
+    -ms-border-radius: 50%;
+    -o-border-radius: 50%;
+}
+
+.heraldVanguish-trackerPersonality2Item {
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    -webkit-border-radius: 50%;
+    -moz-border-radius: 50%;
+    -ms-border-radius: 50%;
+    -o-border-radius: 50%;
+}
+
+
+.heraldVanguish-trackerPersonalityTooltip {
+    opacity: 0;
+    position: absolute;
+    right: 20%;
+
+    background-color: rgba(0, 0, 0, 0.8);
+    color: #fff;
+    padding: 5px 10px;
+    border-radius: 5px;
+    font-size: 12px;
+    white-space: nowrap;
+    z-index: 10;
+    text-align: center;
+    transition: opacity 0.3s ease-in-out;
+}
+
+
+.heraldVanguish-trackerPersonality1Item:hover .heraldVanguish-trackerPersonalityTooltip,
+.heraldVanguish-trackerPersonality2Item:hover .heraldVanguish-trackerPersonalityTooltip {
+
+    opacity: 1;
+}
+
+.heraldVanguish-trackerPersonality1Container:hover .heraldVanguish-trackerPersonality1Item .heraldVanguish-trackerPersonalityTooltip,
+.heraldVanguish-trackerPersonality2Container:hover .heraldVanguish-trackerPersonality2Item .heraldVanguish-trackerPersonalityTooltip {
+
+    opacity: 1;
+}
+
+.heraldVanguish-dialogListCharacterBottomBot {}
+
+.heraldVanguish-toggleBlockPersonalityContainer {
+    display: flex;
+    justify-content: flex-end;
+    /* display: none; */
+}
+
+.heraldVanguish-toggleBlockPersonalityLabel {
+    font-size: 14px;
+    color: black;
+    margin-right: 10px;
+    align-items: center;
+
+}
+
+.heraldVanguish-toggleBlockPersonalityWrapper {
+    position: relative;
+    display: inline-block;
+    width: 40px;
+    height: 22px;
+}
+
+.heraldVanguish-toggleBlockPersonalityWrapper input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.heraldVanguish-toggleSliderBlockPersonality {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #888;
+    transition: 0.4s;
+    border-radius: 34px;
+}
+
+.heraldVanguish-toggleSliderBlockPersonality:before {
+    position: absolute;
+    content: "";
+    height: 16px;
+    width: 16px;
+    left: 3px;
+    bottom: 3px;
+    background-color: white;
+    transition: 0.4s;
+    border-radius: 50%;
+}
+
+.heraldVanguish-toggleBlockPersonalityWrapper input:checked+.heraldVanguish-toggleSliderBlockPersonality {
+    background-color: #4caf50;
+}
+
+.heraldVanguish-toggleBlockPersonalityWrapper input:checked+.heraldVanguish-toggleSliderBlockPersonality:before {
+    transform: translateX(18px);
+}
