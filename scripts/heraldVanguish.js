@@ -85,6 +85,16 @@ async function heraldVanguish_showDialogVanguish() {
         scale: 1.0,
       });
     }
+    const dialogElement = app.element[0];
+    const contentElement = dialogElement.querySelector(".window-content");
+    if (contentElement) {
+      contentElement.style.backgroundColor = "rgba(0, 0, 0, 0.3)";
+      contentElement.style.color = "white";
+      contentElement.style.backgroundImage = "none";
+      contentElement.style.backgroundSize = "cover";
+      contentElement.style.backgroundRepeat = "no-repeat";
+      contentElement.style.backgroundPosition = "center";
+    }
     await heraldVanguish_getDataVanguishMiddle();
     await heraldVanguish_getDataVanguishBottom();
   });
@@ -161,7 +171,7 @@ async function heraldVanguish_getDataVanguishMiddle() {
     let listWeakness = ``;
     if (heraldVanguish_tempAddWeaknessList[tokenUuid]) {
       for (let type of heraldVanguish_tempAddWeaknessList[tokenUuid]) {
-        listWeakness += `${vHelper.heraldVanguish_getElementIconNoTooltip(
+        listWeakness += `${vHelper.heraldVanguish_getPersonalityIconNoTooltip(
           type
         )}`;
       }
@@ -174,7 +184,7 @@ async function heraldVanguish_getDataVanguishMiddle() {
                     <img src="${npc.img}" alt="" class="heraldVanguish-dialogNpcImageView" />
                 </div>
                 <div id="heraldVanguish-maxWeaknessContainer" class="heraldVanguish-maxWeaknessContainer">
-                  <input id="heraldVanguish-maxWeaknessValue-${tokenUuid}" class="heraldHud-maxWeaknessValue" type="number" value="${maxWeakness}"/>
+                  <input id="heraldVanguish-maxWeaknessValue-${tokenUuid}" class="heraldHud-maxWeaknessValue" type="number" value="${maxWeakness}" style="color: white !important;"/>
                 </div>
             </div>
             <div id="heraldVanguish-dialogNpcMiddle" class="heraldVanguish-dialogNpcMiddle">
@@ -190,7 +200,7 @@ async function heraldVanguish_getDataVanguishMiddle() {
                     <div id="heraldVanguish-dialogNpcToughness" class="heraldVanguish-dialogNpcToughness" value=""  data-npc-id="${tokenUuid}">(Toughness: ${toughnessValue})</div>
                       <input id="heraldVanguish-hiddenToughnessValue-${tokenUuid}" class="heraldHud-hiddenToughnessValue" type="text" value="${toughnessValue}" style="display: none;"/>
                     <div id="heraldVanguish-addToughnessContainer" class="heraldVanguish-addToughnessContainer" data-npc-id="${tokenUuid}">
-                      <input id="heraldVanguish-addToughnessValue-${tokenUuid}" class="heraldHud-addToughnessValue" data-npc-id="${tokenUuid}"   type="text" value=""/>
+                      <input id="heraldVanguish-addToughnessValue-${tokenUuid}" class="heraldHud-addToughnessValue" data-npc-id="${tokenUuid}"   type="text" value="" style="color: white !important;"/>
                     </div>
                 </div>
                 <div id="heraldVanguish-dialogNpcWeaknessContainer" class="heraldVanguish-dialogNpcWeaknessContainer">
@@ -376,6 +386,16 @@ async function heraldVanguish_showDialogAddWeaknessNpc(id) {
         scale: 1.0,
       });
     }
+    const dialogElement = app.element[0];
+    const contentElement = dialogElement.querySelector(".window-content");
+    if (contentElement) {
+      contentElement.style.backgroundColor = "rgba(0, 0, 0, 0.3)";
+      contentElement.style.color = "white";
+      contentElement.style.backgroundImage = "none";
+      contentElement.style.backgroundSize = "cover";
+      contentElement.style.backgroundRepeat = "no-repeat";
+      contentElement.style.backgroundPosition = "center";
+    }
 
     document
       .getElementById("heraldVanguish-saveNpcWeaknessContainer")
@@ -396,19 +416,18 @@ async function heraldVanguish_getDataDialogWeaknessNpc(id) {
   let token = tokenDocument.object;
   let actor = token.actor;
   const validTypes = {
-    acid: "Acid",
-    bludgeoning: "Bludgeoning",
-    cold: "Cold",
-    fire: "Fire",
-    force: "Force",
-    lightning: "Lightning",
-    necrotic: "Necrotic",
-    piercing: "Piercing",
-    poison: "Poison",
-    psychic: "Psychic",
-    radiant: "Radiant",
-    slashing: "Slashing",
-    thunder: "Thunder",
+    innocent: "Innocent",
+    sage: "Sage",
+    explorer: "Explorer",
+    outlaw: "Outlaw",
+    magician: "Magician",
+    hero: "Hero",
+    lover: "Lover",
+    jester: "Jester",
+    everyman: "Everyman",
+    caregiver: "Caregiver",
+    ruler: "Ruler",
+    creator: "Creator",
   };
 
   let listWeaknessdamage = "";
@@ -424,7 +443,7 @@ async function heraldVanguish_getDataDialogWeaknessNpc(id) {
     listWeaknessdamage += `
       <div class="heraldVanguish-npcWeaknessCheckboxContainer">
         <input id="heraldVanguish-npcWeaknessCheckbox" class="heraldVanguish-npcWeaknessCheckbox" type="checkbox" name="weakness" value="${type}" ${isChecked}>
-        ${vHelper.heraldVanguish_getElementIconNoTooltip(type)}
+        ${vHelper.heraldVanguish_getPersonalityIconNoTooltip(type)}
         <div class="heraldVanguish-weaknessDamageName">${validTypes[type]}</div>
       </div>
     `;
@@ -457,19 +476,18 @@ async function heraldVanguish_addWeaknessNpc(id) {
     });
 
   const validTypes = [
-    "acid",
-    "bludgeoning",
-    "cold",
-    "fire",
-    "force",
-    "lightning",
-    "necrotic",
-    "piercing",
-    "poison",
-    "psychic",
-    "radiant",
-    "slashing",
-    "thunder",
+    "innocent",
+    "sage",
+    "explorer",
+    "outlaw",
+    "magician",
+    "hero",
+    "lover",
+    "jester",
+    "everyman",
+    "caregiver",
+    "ruler",
+    "creator",
   ];
 
   while (heraldVanguish_tempAddWeaknessList[id].length < maxWeakness) {
@@ -494,7 +512,7 @@ async function heraldVanguish_updateWeaknessNpc() {
     let listWeakness = ``;
     if (heraldVanguish_tempAddWeaknessList[tokenUuid]) {
       for (let type of heraldVanguish_tempAddWeaknessList[tokenUuid]) {
-        listWeakness += `${vHelper.heraldVanguish_getElementIconNoTooltip(
+        listWeakness += `${vHelper.heraldVanguish_getPersonalityIconNoTooltip(
           type
         )}`;
       }
@@ -601,19 +619,18 @@ async function heraldVanguish_getDataMiddleDialogWeaknessAllNpc() {
     "heraldVanguish-dialogWeaknessAllNpcMiddle"
   );
   const validTypes = {
-    acid: "Acid",
-    bludgeoning: "Bludgeoning",
-    cold: "Cold",
-    fire: "Fire",
-    force: "Force",
-    lightning: "Lightning",
-    necrotic: "Necrotic",
-    piercing: "Piercing",
-    poison: "Poison",
-    psychic: "Psychic",
-    radiant: "Radiant",
-    slashing: "Slashing",
-    thunder: "Thunder",
+    innocent: "Innocent",
+    sage: "Sage",
+    explorer: "Explorer",
+    outlaw: "Outlaw",
+    magician: "Magician",
+    hero: "Hero",
+    lover: "Lover",
+    jester: "Jester",
+    everyman: "Everyman",
+    caregiver: "Caregiver",
+    ruler: "Ruler",
+    creator: "Creator",
   };
 
   let listWeaknessdamage = "";
@@ -622,7 +639,7 @@ async function heraldVanguish_getDataMiddleDialogWeaknessAllNpc() {
     listWeaknessdamage += `
       <div class="heraldVanguish-allNpcweaknessCheckboxContainer">
         <input id="heraldVanguish-allNpcWeaknessCheckbox" class="heraldVanguish-allNpcWeaknessCheckbox" type="checkbox" name="weakness" value="${type}">
-        ${vHelper.heraldVanguish_getElementIconNoTooltip(type)}
+        ${vHelper.heraldVanguish_getPersonalityIconNoTooltip(type)}
         <div class="heraldVanguish-weaknessDamageName">${validTypes[type]}</div>
       </div>
     `;
@@ -639,19 +656,18 @@ async function heraldVanguish_addWeaknessAllNpcSelected() {
   let sliderValue = sliderDiv.value;
   let sliderMax = sliderDiv.max;
   const validTypes = [
-    "acid",
-    "bludgeoning",
-    "cold",
-    "fire",
-    "force",
-    "lightning",
-    "necrotic",
-    "piercing",
-    "poison",
-    "psychic",
-    "radiant",
-    "slashing",
-    "thunder",
+    "innocent",
+    "sage",
+    "explorer",
+    "outlaw",
+    "magician",
+    "hero",
+    "lover",
+    "jester",
+    "everyman",
+    "caregiver",
+    "ruler",
+    "creator",
   ];
   if (sliderValue == sliderMax) {
     for (let id of heraldVanguish_listNpcApplyVanguish) {
@@ -789,7 +805,7 @@ async function heraldVanguish_applyVanguishNpc() {
     setTimeout(async () => {
       await heraldVanguish_addToughnessBar(tokenDocument);
       for (let type of heraldVanguish_tempAddWeaknessList[id]) {
-        vHelper.heraldVanguish_addEffectElementNpc(id, type);
+        vHelper.heraldVanguish_addEffectPersonalityNpc(id, type);
       }
     }, 500);
   }
@@ -909,7 +925,7 @@ async function heraldVanguish_calculatedToughnessDamage(
   let actor = token.actor;
   let objFinalDamage = {};
   let weaknessBoost = 100;
-  let elementBoost = 1;
+  let personalityBoost = 1;
   let effectModifiers = {
     "Weakness Break Efficiency Boost - Blinded": 25,
     "Weakness Break Efficiency Boost - Frightened": 25,
@@ -948,24 +964,24 @@ async function heraldVanguish_calculatedToughnessDamage(
   let allWeaknesses = Array.from(weaknessSet);
   if (attackerFlag) {
     if (
-      attackerFlag.element1 &&
-      allWeaknesses.includes(attackerFlag.element1.toLowerCase())
+      attackerFlag.personality1 &&
+      allWeaknesses.includes(attackerFlag.personality1.toLowerCase())
     ) {
-      elementBoost += 1;
+      personalityBoost += 1;
     }
     if (
-      attackerFlag.element2 &&
-      allWeaknesses.includes(attackerFlag.element2.toLowerCase())
+      attackerFlag.personality2 &&
+      allWeaknesses.includes(attackerFlag.personality2.toLowerCase())
     ) {
-      elementBoost += 1;
+      personalityBoost += 1;
     }
   }
   let finalToughnessDamage = Math.floor(
-    damage * elementBoost * (weaknessBoost * 0.01)
+    damage * personalityBoost * (weaknessBoost * 0.01)
   );
   objFinalDamage = {
     baseDamage: damage,
-    elementBoost: elementBoost,
+    personalityBoost: personalityBoost,
     weaknessBoost: weaknessBoost,
     finalDamage: finalToughnessDamage,
   };
@@ -1035,7 +1051,7 @@ Hooks.on("preUpdateActor", async (actor, updateData, options, userId) => {
             heraldVanguish.toughness
           } / ${heraldVanguish.maxToughness} (${Math.abs(toughnessDamage)}) (${
             objDamage.baseDamage
-          } x ${objDamage.elementBoost} x ${objDamage.weaknessBoost}%)`;
+          } x ${objDamage.personalityBoost} x ${objDamage.weaknessBoost}%)`;
           ChatMessage.create({
             content: chatContent,
             speaker: null,
@@ -1046,7 +1062,7 @@ Hooks.on("preUpdateActor", async (actor, updateData, options, userId) => {
           let chatContent = `${actor.name}'s Weakness Break Overflow is now ${
             heraldVanguish.overflowToughness
           } (${Math.abs(remainToughness)}) (${objDamage.baseDamage} x ${
-            objDamage.elementBoost
+            objDamage.personalityBoost
           } x ${objDamage.weaknessBoost}%)`;
           ChatMessage.create({
             content: chatContent,

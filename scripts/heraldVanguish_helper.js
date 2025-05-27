@@ -24,36 +24,6 @@ function heraldVanguish_getPersonalityIconNoTooltip(type) {
     `;
 }
 
-function heraldVanguish_getElementIconGold(type) {
-  const basePath = "/systems/dnd5e/icons/svg/damage/";
-  const validTypes = {
-    acid: "Acid",
-    bludgeoning: "Bludgeoning",
-    cold: "Cold",
-    fire: "Fire",
-    force: "Force",
-    lightning: "Lightning",
-    necrotic: "Necrotic",
-    piercing: "Piercing",
-    poison: "Poison",
-    psychic: "Psychic",
-    radiant: "Radiant",
-    slashing: "Slashing",
-    thunder: "Thunder",
-    healing: "Healing",
-    temphp: "Temporary HP",
-  };
-
-  let iconType = validTypes[type] ? type : "";
-  let tooltipText = validTypes[type] || "Unknown";
-
-  return `
-      <div class="heraldVanguish-damageIconContainer">
-        <img src="${basePath}${iconType}.svg" width="20" height="20" style="border:none;">
-      </div>
-    `;
-}
-
 async function heraldVanguish_effectWeaknessBroken(actor, tokenDocument) {
   let existingEffect = actor.effects.find((e) => e.name === "Weakness Broken");
 
@@ -304,7 +274,7 @@ function heraldVanguish_getPersonalitySelectedIcon(type, personality) {
     creator: "soul_creator",
   };
 
-   const iconFile = validTypes[type] ?? "";
+  const iconFile = validTypes[type] ?? "";
 
   return `
       <div id="heraldVanguish-personalityIconContainer-${personality}" class="heraldVanguish-personalityIconContainer" data-name="${type}">
@@ -334,7 +304,7 @@ async function heraldVanguish_getCharacterAllUuidActive() {
   return arrUuid;
 }
 
-async function heraldVanguish_addEffectElementNpc(uuid, type) {
+async function heraldVanguish_addEffectPersonalityNpc(uuid, type) {
   let nameEffect = `Weakness Type Inflict : ${
     type.charAt(0).toUpperCase() + type.slice(1)
   }`;
@@ -343,11 +313,27 @@ async function heraldVanguish_addEffectElementNpc(uuid, type) {
   let token = tokenDocument.object;
   let actor = token.actor;
   let existingEffect = actor.effects.find((e) => e.name == nameEffect);
+
+    const validTypes = {
+    innocent: "ego_innocent",
+    sage: "self_sage",
+    explorer: "soul_explorer",
+    outlaw: "soul_outlaw",
+    magician: "self_magician",
+    hero: "ego_hero",
+    lover: "soul_love",
+    jester: "self_jester",
+    everyman: "ego_everyman",
+    caregiver: "ego_caregiver",
+    ruler: "self_ruler",
+    creator: "soul_creator",
+  };
+  const iconFile = validTypes[type] ?? "";
   if (!existingEffect) {
     await actor.createEmbeddedDocuments("ActiveEffect", [
       {
         name: nameEffect,
-        icon: `/systems/dnd5e/icons/svg/damage/${type}.svg`,
+        icon: `/modules/herald-vanguish-beta/assets/12icon/debuff/${iconFile}.png`,
         changes: [],
         origin: `Actor.${actor.id}`,
         disabled: false,
@@ -369,10 +355,9 @@ async function heraldVanguish_addEffectElementNpc(uuid, type) {
 
 export {
   heraldVanguish_getPersonalityIconNoTooltip,
-  heraldVanguish_getElementIconGold,
   heraldVanguish_effectWeaknessBroken,
   heraldVanguish_effectOverflowWeaknessBroken,
   heraldVanguish_getPersonalitySelectedIcon,
   heraldVanguish_getCharacterAllUuidActive,
-  heraldVanguish_addEffectElementNpc,
+  heraldVanguish_addEffectPersonalityNpc,
 };

@@ -125,17 +125,15 @@ async function heraldVanguish_showDialogSelectCharacter() {
         height: height,
         scale: 1.0,
       });
-      const dialogPersonality = app.element[0];
-      const contentPersonality =
-        dialogPersonality.querySelector(".window-content");
-
-      if (contentPersonality) {
-        // contentPersonality.style.background = "none";
-        // contentPersonality.style.backgroundImage =
-        //   "url('/modules/herald-vanguish-beta/assets/images/galaxy_bg.jpg')";
-        // contentPersonality.style.backgroundSize = "cover";
-        // contentPersonality.style.backgroundRepeat = "no-repeat";
-        // contentPersonality.style.backgroundPosition = "center";
+      const dialogElement = app.element[0];
+      const contentElement = dialogElement.querySelector(".window-content");
+      if (contentElement) {
+        contentElement.style.backgroundColor = "rgba(0, 0, 0, 0.3)";
+        contentElement.style.color = "white";
+        contentElement.style.backgroundImage = "none";
+        contentElement.style.backgroundSize = "cover";
+        contentElement.style.backgroundRepeat = "no-repeat";
+        contentElement.style.backgroundPosition = "center";
       }
     }
     await heraldVanguish_getDataListCharacterMiddle();
