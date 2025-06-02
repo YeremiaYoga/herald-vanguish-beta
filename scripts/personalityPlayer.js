@@ -368,6 +368,7 @@ async function heraldVanguish_showDialogPersonalityPlayer() {
     }
     await heraldVanguish_getDataCharacterPersonalityMiddle();
     await heraldVanguish_updateTrackerPersonalityGroup();
+    await heraldVanguish_renderViewPersonalityBottom();
   });
 }
 
@@ -431,6 +432,40 @@ async function heraldVanguish_getDataCharacterPersonalityMiddle() {
       });
       personality2Div.addEventListener("click", async (event) => {
         heraldVanguish_selectPersonalityCharacter("personality2");
+      });
+    }
+  }
+}
+
+async function heraldVanguish_renderViewPersonalityBottom() {
+  let bottomPersonality = document.getElementById(
+    "heraldVanguish-dialogCharacterPersonalityBottom"
+  );
+  if (bottomPersonality) {
+    bottomPersonality.innerHTML = `
+      <div id="heraldVanguish-journalVanguishList" style="padding:10px; cursor:pointer;">
+          <i class="fa-solid fa-book" style="color:white; font-size:25px;"></i>
+      </div>
+    `;
+
+    const openList = document.getElementById(
+      "heraldVanguish-journalVanguishList"
+    );
+    if (openList) {
+      openList.addEventListener("click", async () => {
+        const pack = game.packs.get("herald-vanguish-beta.vanguish-journal");
+        if (!pack) {
+          ui.notifications.error("Compendium tidak ditemukan.");
+          return;
+        }
+
+        const entry = await pack.getDocument("g9J4OBDddOzAl3XQ");
+        if (!entry) {
+          ui.notifications.error("Journal Entry tidak ditemukan.");
+          return;
+        }
+
+        entry.sheet.render(true);
       });
     }
   }

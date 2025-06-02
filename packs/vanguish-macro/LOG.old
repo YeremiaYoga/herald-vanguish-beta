@@ -1,8 +1,23 @@
-2025/05/26-09:37:36.585 5fe4 Recovering log #262
-2025/05/26-09:37:36.589 5fe4 Delete type=0 #262
-2025/05/26-09:37:36.589 5fe4 Delete type=3 #261
-2025/05/26-17:09:44.799 2530 Level-0 table #266: started
-2025/05/26-17:09:44.799 2530 Level-0 table #266: 0 bytes OK
-2025/05/26-17:09:44.800 2530 Delete type=0 #264
-2025/05/26-17:09:44.805 2530 Manual compaction at level-0 from '!macros!5l1glaWQdfJ44O8l' @ 72057594037927935 : 1 .. '!macros!rr0WROw2F5uFzaaR' @ 0 : 0; will stop at (end)
-2025/05/26-17:09:44.805 2530 Manual compaction at level-1 from '!macros!5l1glaWQdfJ44O8l' @ 72057594037927935 : 1 .. '!macros!rr0WROw2F5uFzaaR' @ 0 : 0; will stop at (end)
+2025/06/02-08:56:18.474 6628 Recovering log #270
+2025/06/02-08:56:18.476 6628 Level-0 table #272: started
+2025/06/02-08:56:18.477 6628 Level-0 table #272: 6430 bytes OK
+2025/06/02-08:56:18.483 6628 Delete type=0 #270
+2025/06/02-08:56:18.483 6628 Delete type=3 #269
+2025/06/02-09:00:15.436 6c40 Level-0 table #275: started
+2025/06/02-09:00:15.436 6c40 Level-0 table #275: 0 bytes OK
+2025/06/02-09:00:15.438 6c40 Delete type=0 #273
+2025/06/02-09:00:15.441 6c40 Manual compaction at level-0 from '!macros!5l1glaWQdfJ44O8l' @ 72057594037927935 : 1 .. '!macros!rr0WROw2F5uFzaaR' @ 0 : 0; will stop at '!macros!rr0WROw2F5uFzaaR' @ 79 : 1
+2025/06/02-09:00:15.441 6c40 Compacting 1@0 + 0@1 files
+2025/06/02-09:00:15.442 6c40 Generated table #276@0: 11 keys, 6430 bytes
+2025/06/02-09:00:15.442 6c40 Compacted 1@0 + 0@1 files => 6430 bytes
+2025/06/02-09:00:15.443 6c40 compacted to: files[ 0 1 1 0 0 0 0 ]
+2025/06/02-09:00:15.443 6c40 Delete type=2 #272
+2025/06/02-09:00:15.447 6c40 Manual compaction at level-0 from '!macros!rr0WROw2F5uFzaaR' @ 79 : 1 .. '!macros!rr0WROw2F5uFzaaR' @ 0 : 0; will stop at (end)
+2025/06/02-09:00:15.447 6c40 Manual compaction at level-1 from '!macros!5l1glaWQdfJ44O8l' @ 72057594037927935 : 1 .. '!macros!rr0WROw2F5uFzaaR' @ 0 : 0; will stop at '!macros!rr0WROw2F5uFzaaR' @ 79 : 1
+2025/06/02-09:00:15.447 6c40 Compacting 1@1 + 1@2 files
+2025/06/02-09:00:15.450 6c40 Generated table #277@1: 11 keys, 6430 bytes
+2025/06/02-09:00:15.450 6c40 Compacted 1@1 + 1@2 files => 6430 bytes
+2025/06/02-09:00:15.451 6c40 compacted to: files[ 0 0 1 0 0 0 0 ]
+2025/06/02-09:00:15.452 6c40 Delete type=2 #24
+2025/06/02-09:00:15.452 6c40 Delete type=2 #276
+2025/06/02-09:00:15.458 6c40 Manual compaction at level-1 from '!macros!rr0WROw2F5uFzaaR' @ 79 : 1 .. '!macros!rr0WROw2F5uFzaaR' @ 0 : 0; will stop at (end)

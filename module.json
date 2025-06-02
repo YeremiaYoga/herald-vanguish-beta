@@ -1,19 +1,21 @@
 {
   "title": "Herald Vanguish Beta",
-  "description": "Herald Beta Testing",
-  "version": "1.0.17",
+  "description": "<p>Herald Beta Testing</p>",
+  "version": "1.0.18",
   "manifest": "https://raw.githubusercontent.com/YeremiaYoga/herald-vanguish-beta/main/module.json",
   "download": "https://github.com/YeremiaYoga/herald-vanguish-beta/archive/refs/heads/main.zip",
-  "esmodules": ["scripts/main.js"],
-   "styles": ["styles/style.css", "styles/personalityStyle.css"],
-  "persistentStorage": true,
-  "dependencies": [
+  "esmodules": [
+    "scripts/main.js"
+  ],
+  "styles": [
     {
-      "name": "socketlib",
-      "type": "module",
-      "manifest": "https://raw.githubusercontent.com/manuelVo/foundryvtt-socketlib/main/module.json"
+      "src": "styles/style.css"
+    },
+    {
+      "src": "styles/personalityStyle.css"
     }
   ],
+  "persistentStorage": true,
   "socket": true,
   "packs": [
     {
@@ -26,6 +28,17 @@
         "PLAYER": "OBSERVER",
         "ASSISTANT": "OWNER"
       }
+    },
+    {
+      "name": "vanguish-journal",
+      "label": "Vanguish Journal",
+      "path": "packs/vanguish-journal",
+      "type": "JournalEntry",
+      "ownership": {
+        "PLAYER": "OBSERVER",
+        "ASSISTANT": "OWNER"
+      },
+      "system": "dnd5e"
     }
   ],
   "compatibility": {
