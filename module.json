@@ -1,17 +1,13 @@
 {
   "title": "Herald Vanguish Beta",
   "description": "<p>Herald Beta Testing</p>",
-  "version": "1.0.18",
+  "version": "1.0.0",
   "manifest": "https://raw.githubusercontent.com/YeremiaYoga/herald-vanguish-beta/main/module.json",
   "download": "https://github.com/YeremiaYoga/herald-vanguish-beta/archive/refs/heads/main.zip",
   "esmodules": ["scripts/main.js"],
   "styles": [
-    {
-      "src": "styles/style.css"
-    },
-    {
-      "src": "styles/personalityStyle.css"
-    }
+    { "src": "styles/style.css" },
+    { "src": "styles/personalityStyle.css" }
   ],
   "persistentStorage": true,
   "socket": true,
