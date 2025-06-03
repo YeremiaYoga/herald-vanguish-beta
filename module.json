@@ -4,9 +4,7 @@
   "version": "1.0.18",
   "manifest": "https://raw.githubusercontent.com/YeremiaYoga/herald-vanguish-beta/main/module.json",
   "download": "https://github.com/YeremiaYoga/herald-vanguish-beta/archive/refs/heads/main.zip",
-  "esmodules": [
-    "scripts/main.js"
-  ],
+  "esmodules": ["scripts/main.js"],
   "styles": [
     {
       "src": "styles/style.css"
