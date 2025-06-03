@@ -2,8 +2,8 @@
   "title": "Herald Vanguish Beta",
   "description": "<p>Herald Beta Testing</p>",
   "version": "1.0.0",
-  "manifest": "https://raw.githubusercontent.com/YeremiaYoga/herald-vanguish-beta/main/module.json",
-  "download": "https://github.com/YeremiaYoga/herald-vanguish-beta/archive/refs/heads/main.zip",
+  "manifest": "https://raw.githubusercontent.com/YeremiaYoga/herald-vanguish/main/module.json",
+  "download": "https://github.com/YeremiaYoga/herald-vanguish/archive/refs/heads/main.zip",
   "esmodules": ["scripts/main.js"],
   "styles": [
     { "src": "styles/style.css" },
@@ -39,5 +39,15 @@
     "minimum": "12",
     "verified": "12"
   },
-  "id": "herald-vanguish-beta"
+  "id": "herald-vanguish-beta",
+  "relationships": {
+    "requires": [
+      {
+        "id": "socketlib",
+        "type": "module",
+        "manifest": "https://raw.githubusercontent.com/manuelVo/foundryvtt-socketlib/main/module.json",
+        "compatibility": {}
+      }
+    ]
+  }
 }
