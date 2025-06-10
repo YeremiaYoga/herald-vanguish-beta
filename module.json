@@ -1,9 +1,10 @@
 {
   "title": "Herald Vanguish Beta",
   "description": "<p>Herald Beta Testing</p>",
-  "version": "1.0.0",
+  "version": "1.0.18",
   "manifest": "https://raw.githubusercontent.com/YeremiaYoga/herald-vanguish/main/module.json",
   "download": "https://github.com/YeremiaYoga/herald-vanguish/archive/refs/heads/main.zip",
+  "type": "module",
   "esmodules": ["scripts/main.js"],
   "styles": [
     { "src": "styles/style.css" },
@@ -28,11 +29,11 @@
       "label": "Vanguish Journal",
       "path": "packs/vanguish-journal",
       "type": "JournalEntry",
+      "system": "dnd5e",
       "ownership": {
         "PLAYER": "OBSERVER",
         "ASSISTANT": "OWNER"
-      },
-      "system": "dnd5e"
+      }
     }
   ],
   "compatibility": {
