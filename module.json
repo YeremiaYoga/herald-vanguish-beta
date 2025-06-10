@@ -1,7 +1,7 @@
 {
   "title": "Herald Vanguish Beta",
   "description": "<p>Herald Beta Testing</p>",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "manifest": "https://raw.githubusercontent.com/YeremiaYoga/herald-vanguish-beta/main/module.json",
   "download": "https://github.com/YeremiaYoga/herald-vanguish-beta/archive/refs/heads/main.zip",
   "esmodules": ["scripts/main.js"],
