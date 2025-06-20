@@ -12,18 +12,35 @@ Hooks.on("ready", () => {
       const user = game.user;
       const selectedActor = user.character;
       if (selectedActor) {
-        const tokens = selectedActor.getActiveTokens(true);
-        if (tokens.length > 0) {
-          const tokenDocument = tokens[0].document;
-          const flag = await selectedActor.getFlag("world", "heraldVanguish");
-          if (flag?.personalityActive === true) {
-            // elementPlayer.heraldVanguish_renderElementPlayerButton();
-            personalityPlayer.heraldVanguish_renderPersonalityPlayerButton();
-          }
+        // const tokens = selectedActor.getActiveTokens(true);
+        // if (tokens.length > 0) {
+        //   const tokenDocument = tokens[0].document;
+        //   const flag = await selectedActor.getFlag("world", "heraldVanguish");
+        //   if (flag?.personalityActive === true) {
+        //     // elementPlayer.heraldVanguish_renderElementPlayerButton();
+        //     personalityPlayer.heraldVanguish_renderPersonalityPlayerButton();
+        //   }
+        // }
+        const flag = await selectedActor.getFlag("world", "heraldVanguish");
+        if (flag?.personalityActive === true) {
+          personalityPlayer.heraldVanguish_renderPersonalityPlayerButton();
         }
       }
     }
   }, 1000);
+});
+
+Hooks.on("createToken", async (tokenDoc) => {
+  const selectedActor = game.user.character;
+  if (!selectedActor || !tokenDoc.actor) return;
+
+  // Cek apakah token yang masuk adalah milik player ini
+  if (tokenDoc.actor.id === selectedActor.id) {
+    const flag = await selectedActor.getFlag("world", "heraldVanguish");
+    if (flag?.personalityActive === true) {
+      personalityPlayer.heraldVanguish_renderPersonalityPlayerButton();
+    }
+  }
 });
 
 Hooks.on("init", () => {

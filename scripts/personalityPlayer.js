@@ -32,7 +32,25 @@ Hooks.once("socketlib.ready", () => {
 
   heraldVanguish_personalitySocket.register(
     "updateActivePersonalityPlayerSelected",
-    async () => {}
+    async () => {
+      if (game.user.isGM) return;
+      const user = game.user;
+      const selectedActor = user.character;
+      let heraldVanguish = await selectedActor.getFlag(
+        "world",
+        "heraldVanguish"
+      );
+      const existingBar = document.getElementById(
+        "heraldVanguish-accessPersonalityContainer"
+      );
+      if (heraldVanguish.personalityActive === true) {
+        await heraldVanguish_renderPersonalityPlayerButton();
+      } else {
+        if (existingBar) {
+          existingBar.remove();
+        }
+      }
+    }
   );
 });
 
